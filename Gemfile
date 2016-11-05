@@ -4,4 +4,5 @@ source 'https://rubygems.org' do
   gem 'rerun', :groups => [:development]
   gem 'sinatra'
   gem 'json'
+  gem 'rufus-scheduler'
 end

@@ -47,22 +47,15 @@ end
 
 def add_pet(pet)
   conn = get_connection
-  #conn = Sequel.postgres('petfinder', :user => 'overlord', :password => 'password', :host => 'localhost')
   conn.prepare('addPet', "SELECT AddPetStaging($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12);")
   conn.prepare('addPetContact', "SELECT AddPetContactStaging($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)")
   conn.prepare('addPetOption', "SELECT AddPetOptionStaging($1, $2);")
   conn.prepare('addPetBreed', "SELECT AddPetBreedStaging($1, $2);")
   conn.prepare('addPetPhoto', "SELECT AddPetPhotoStaging($1, $2, $3, $4);")
+  conn.prepare('truncateStaging', "SELECT TruncateStagingTables();")
 
-  results = conn.exec_prepared('addPet', [pet.id, pet.name, pet.animal, pet.mix, pet.age, pet.shelter_id, pet.shelter_pet_id, pet.sex, pet.size, pet.description, pet.last_update, pet.status])
-  #puts results
-
-  contact = parse_contact_info(pet.contact)
-  if contact.empty?
-    puts 'Error processing contacts.'
-    return
-  end
-  results = conn.exec_prepared('addPetContact', [pet.id, contact['name'], contact['address1'], contact['address2'], contact['city'], contact['state'], contact['zip'], contact['phone'], contact['fax'], contact['email']])
+  conn.exec_prepared('truncateStaging')
+  conn.exec_prepared('addPet', [pet.id, pet.name, pet.animal, pet.mix, pet.age, pet.shelter_id, pet.shelter_pet_id, pet.sex, pet.size, pet.description, pet.last_update, pet.status])
 
   pet.options.each do |option|
     conn.exec_prepared('addPetOption', [pet.id, option])
@@ -79,6 +72,13 @@ def add_pet(pet)
     conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 'pnt', pic.thumbnail])
     conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 't', pic.tiny])
   end
+
+  contact = parse_contact_info(pet.contact)
+  if contact.empty?
+    puts 'Error processing contacts.'
+    return
+  end
+  conn.exec_prepared('addPetContact', [pet.id, contact['name'], contact['address1'], contact['address2'], contact['city'], contact['state'], contact['zip'], contact['phone'], contact['fax'], contact['email']])
 rescue StandardError => e
   puts e
   puts e.backtrace

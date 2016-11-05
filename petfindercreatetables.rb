@@ -57,6 +57,7 @@ DROP FUNCTION IF EXISTS AddPetStaging(
 	,pStatus char(1)
 );
 
+DROP FUNCTION IF EXISTS TruncateStagingTables();
 DROP FUNCTION IF EXISTS AddPetOptionStaging(int, varchar);
 DROP FUNCTION IF EXISTS AddPetBreedStaging(int, varchar);
 DROP FUNCTION IF EXISTS AddPetPhotoStaging(int, int, varchar, text);
@@ -239,6 +240,16 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION TruncateStagingTables()
+RETURNS void AS $$
+BEGIN
+	TRUNCATE petcontactsstaging;
+	TRUNCATE petoptionsstaging;
+	TRUNCATE petbreedsstaging;
+	TRUNCATE petphotosstaging;
+	TRUNCATE PetsStaging;
+END
+$$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION AddPetStaging(
    pPetId int
@@ -663,7 +674,7 @@ BEGIN
 		AND pps.PhotoSize = pp.PhotoSize
 		AND pps.PhotoURL = pp.PhotoURL
 	);
-
+RETURN '';
 END
 $$ LANGUAGE plpgsql;
 

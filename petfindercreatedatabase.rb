@@ -32,6 +32,7 @@ class PetFinderCreateDatabase
 
 		DROP TABLE IF EXISTS SizeTypes;
 		DROP TABLE IF EXISTS OptionTypes;
+		DROP TABLE IF EXISTS GenderTypes;
 		DROP TABLE IF EXISTS BreedTypesStaging;
 		DROP TABLE IF EXISTS BreedTypes;
 		DROP TABLE IF EXISTS AnimalTypes;
@@ -100,6 +101,12 @@ class PetFinderCreateDatabase
 			BreedName varchar(255) NOT NULL
 		);
 
+		CREATE TABLE GenderTypes (
+			GenderPK SERIAL PRIMARY KEY
+			,PetFinderGender char(1)
+			,GenderDisplayName varchar(10)
+		);
+
 		CREATE TABLE OptionTypes (
 			OptionTypePK SERIAL PRIMARY KEY
 			, OptionTypeName varchar(50) UNIQUE NOT NULL
@@ -136,7 +143,7 @@ class PetFinderCreateDatabase
 			,AnimalTypePK INT REFERENCES AnimalTypes(AnimalTypePK)
 			,mix varchar(3)
 			,AgeTypePK INT REFERENCES AgeTypes(AgeTypepk)
-			,Gender char(1) NOT NULL
+			,GenderPK int NOT NULL REFERENCES GenderTypes(GenderPK)
 			,SizeTypePK INT REFERENCES SizeTypes(SizeTypePK)
 			,Description text
 			,LastUpdate timestamp
@@ -495,70 +502,74 @@ class PetFinderCreateDatabase
 			--Update Pets
 			UPDATE Pets
 			SET ShelterPK = ps2.ShelterPK
-				,ShelterPetID = ps2.ShelterPetID
-				,Name = ps2.Name
-				,AnimalTypePK = ps2.AnimalTypePK
-				,Gender = ps2.Gender
-				,SizeTypePK = ps2.SizeTypePK
-				,Description = ps2.Description
-				,LastUpdate = ps2.LastUpdate
-				,PetStatusType = ps2.PetStatusType
-				,AgeTypePK = ps2.AgeTypePK
+			  ,ShelterPetID = ps2.ShelterPetID
+			  ,Name = ps2.Name
+			  ,AnimalTypePK = ps2.AnimalTypePK
+			  ,Gender = ps2.Gender
+			  ,SizeTypePK = ps2.SizeTypePK
+			  ,Description = ps2.Description
+			  ,LastUpdate = ps2.LastUpdate
+			  ,PetStatusType = ps2.PetStatusType
+			  ,AgeTypePK = ps2.AgeTypePK
 			FROM Pets p
 			JOIN (
-				SELECT ps.PetFinderID
-					,s.ShelterPK
-					,ps.ShelterPetID
-					,ps.Name
-					,ant.AnimalTypePK
-					,ps.Gender
-					,st.SizeTypePK
-					,ps.Description
-					,ps.LastUpdate
-					,ps.PetStatusType
-					,agt.AgeTypePK
-				FROM PetsStaging ps
-				JOIN Shelters s ON ps.ShelterID = s.ShelterID
-				JOIN AnimalTypes ant ON ant.AnimalTypeName = ps.AnimalTypeName
-				JOIN SizeTypes st ON st.SizeTypeName = ps.SizeTypeName
-				JOIN AgeTypes agt ON agt.AgeTypeName = ps.AgeTypeName
-			) ps2 ON ps2.PetFinderID = p.PetFinderID;
+			  SELECT ps.PetFinderID
+			    ,s.ShelterPK
+			    ,ps.ShelterPetID
+			    ,ps.Name
+			    ,ant.AnimalTypePK
+			    ,gt.GenderPK
+			    ,st.SizeTypePK
+			    ,ps.Description
+			    ,ps.LastUpdate
+			    ,ps.PetStatusType
+			    ,agt.AgeTypePK
+			  FROM PetsStaging ps
+			  JOIN Shelters s ON ps.ShelterID = s.ShelterID
+			  JOIN AnimalTypes ant ON ant.AnimalTypeName = ps.AnimalTypeName
+			  JOIN SizeTypes st ON st.SizeTypeName = ps.SizeTypeName
+			  JOIN AgeTypes agt ON agt.AgeTypeName = ps.AgeTypeName
+			  JOIN GenderTypes gt ON gt.PetFinderGender = ps.Gender
+			) ps2 ON ps2.PetFinderID = p.PetFinderID
+			--Future Improvement. Add a WHERE clause to make it so that you do not do an update when there is nothing to change
+			;
 
 			--Insert Pets
 			INSERT INTO Pets (
-				PetFinderID
-				,ShelterPK
-				,ShelterPetID
-				,Name
-				,AnimalTypePK
-				,Gender
-				,SizeTypePK
-				,Description
-				,LastUpdate
-				,PetStatusType
-				,AgeTypePK
+			  PetFinderID
+			  ,ShelterPK
+			  ,ShelterPetID
+			  ,Name
+			  ,AnimalTypePK
+			  ,Gender
+			  ,SizeTypePK
+			  ,Description
+			  ,LastUpdate
+			  ,PetStatusType
+			  ,AgeTypePK
 			)
 			SELECT ps.PetFinderID
-				,s.ShelterPK
-				,ps.ShelterPetID
-				,ps.Name
-				,ant.AnimalTypePK
-				,ps.Gender
-				,st.SizeTypePK
-				,ps.Description
-				,ps.LastUpdate
-				,ps.PetStatusType
-				,agt.AgeTypePK
+			  ,s.ShelterPK
+			  ,ps.ShelterPetID
+			  ,ps.Name
+			  ,ant.AnimalTypePK
+			  ,gt.GenderPK
+			  ,st.SizeTypePK
+			  ,ps.Description
+			  ,ps.LastUpdate
+			  ,ps.PetStatusType
+			  ,agt.AgeTypePK
 			FROM PetsStaging ps
 			JOIN Shelters s ON ps.ShelterID = s.ShelterID
 			JOIN AnimalTypes ant ON ant.AnimalTypeName = ps.AnimalTypeName
 			JOIN SizeTypes st ON st.SizeTypeName = ps.SizeTypeName
 			JOIN AgeTypes agt ON agt.AgeTypeName = ps.AgeTypeName
+			JOIN GenderTypes gt ON gt.PetFinderGender = ps.Gender
 			WHERE NOT EXISTS (
-				SELECT 1
-				FROM Pets p
-				WHERE ps.PetFinderID = p.PetFinderID
-				);
+			  SELECT 1
+			  FROM Pets p
+			  WHERE ps.PetFinderID = p.PetFinderID
+			  );
 			--End Pets
 
 			DELETE FROM PetBreeds pb
@@ -741,6 +752,13 @@ class PetFinderCreateDatabase
 		  sizeTypes.insert(:sizetypename => f.value)
 			# puts f.value
 		end
+
+		conn.run "
+			INSERT INTO GenderTypes (PetFinderGender, GenderDisplayName)
+			VALUES ('M','Male');
+			INSERT INTO GenderTypes (PetFinderGender, GenderDisplayName)
+			VALUES ('F','Female');
+		";
 	end
 #puts doc
 end

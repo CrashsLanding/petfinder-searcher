@@ -108,7 +108,7 @@ shelter_ids = init_shelter_ids()
 
 scheduler = Rufus::Scheduler.new
 
-scheduler.every '1h' do
+def fill_db()
   shelter_ids.each do |id|
     add_shelter(petfinder.shelter(id))
 
@@ -120,3 +120,12 @@ scheduler.every '1h' do
     store pets
   end
 end
+
+scheduler.every '1h' do
+  fill_db()
+end
+
+scheduler.in '10s' do
+  fill_db()
+end
+

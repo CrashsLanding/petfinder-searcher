@@ -7,6 +7,12 @@ DB = Sequel.postgres('petfinder', :user => 'nate', :password => 'test', :host =>
 
 #Creates the tables
 DB.run "
+DROP TABLE IF EXISTS PetsStaging;
+DROP TABLE IF EXISTS PetPhotosStaging;
+DROP TABLE IF EXISTS PetContactsStaging;
+DROP TABLE IF EXISTS PetBreedsStaging;
+DROP TABLE IF EXISTS PetOptionsStaging;
+
 DROP TABLE IF EXISTS PetPhotos;
 DROP TABLE IF EXISTS PetOptions;
 DROP TABLE IF EXISTS PetContacts;
@@ -123,7 +129,7 @@ CREATE TABLE PetBreeds (
 CREATE TABLE PetBreedsStaging (
 	PetFinderID int
 	,BreedName varchar(255)
-)
+);
 
 CREATE TABLE PetContacts (
 	PetContactPK SERIAL PRIMARY KEY
@@ -150,7 +156,7 @@ CREATE TABLE PetContactsStaging (
 	,Phone varchar(20) --not sure of the format so giving it extra space
 	,Fax varchar(20)
 	,Email varchar(254)
-)
+);
 
 CREATE TABLE PetOptions (
 	PetOptionPK SERIAL PRIMARY KEY
@@ -161,7 +167,7 @@ CREATE TABLE PetOptions (
 CREATE TABLE PetOptionsStaging (
 	PetFinderID int
 	,OptionTypeName varchar(50)
-)
+);
 
 CREATE TABLE PetPhotos (
 	PetPhotoPK serial PRIMARY KEY
@@ -176,7 +182,7 @@ CREATE TABLE PetPhotosStaging (
 	,PhotoID int
 	,PhotoSize varchar(3)
 	,PhotoURL text
-)
+);
 
 CREATE OR REPLACE FUNCTION AddShelter(
   pShelterID varchar(10)
@@ -329,6 +335,10 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
+
+
+
+
 "
 
 
@@ -363,6 +373,8 @@ DB.run "
 	SELECT BreedName
 	FROM BreedTypesStaging
 	GROUP BY BreedName;
+
+	DROP TABLE BreedTypesStaging;
 "
 
 AgeTypes = DB[:agetypes]

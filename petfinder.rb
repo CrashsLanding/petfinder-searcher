@@ -28,7 +28,8 @@ get '/pets/all' do
     :age => pet.age,
     :size => pet.size,
     :breeds => pet.breeds,
-    :pet_type => pet.animal }}
+    :petType => pet.animal,
+    :photoUrl => 'https://www.wired.com/wp-content/uploads/2015/09/google-logo.jpg'}}
   {:pets => pets_output}.to_json
 end
 

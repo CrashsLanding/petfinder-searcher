@@ -2,7 +2,7 @@ require 'sequel'
 require 'rexml/document'
 
 #Setup DB Connection
-DB = Sequel.postgres('petfinder', :user => 'nate', :password => 'test', :host => 'localhost')
+DB = Sequel.postgres('petfinder', :user => 'overlord', :password => 'password', :host => 'localhost')
 
 
 #Creates the tables
@@ -98,7 +98,7 @@ CREATE TABLE PetContacts (
 	,Address2 varchar(1000)
 	,City varchar(100)
 	,State char(2)
-	,Zip char(5) --Change to 5+4 format if nessisarry
+	,Zip char(5) --Change to 5+4 format if necessary
 	,Phone varchar(20) --not sure of the format so giving it extra space
 	,Fax varchar(20)
 	,Email varchar(254)
@@ -117,6 +117,30 @@ CREATE TABLE PetPhotos (
 	,PhotoSize varchar(3)
 	,PhotoLocation varchar(1000)
 );
+
+CREATE OR REPLACE FUNCTION AddShelter(pShelterID varchar(10)
+	,pShelterName varchar(255)
+	,pAddress1 varchar(1000)
+	,pAddress2 varchar(1000)
+	,pCity varchar(100)
+	,pState char(2)
+	,pZip char(5) --Change to 5+4 format if necessary
+	,pCountry varchar(100)
+	,pLatitude decimal
+	,pLongitude decimal
+	,pPhone varchar(20) --not sure of the format so giving it extra space
+	,pFax varchar(20)
+	,pEmail varchar(254))
+RETURNS void AS $$
+DECLARE id_exists BOOLEAN := false;
+BEGIN
+	SELECT TRUE INTO id_exists FROM Shelters WHERE pShelterID = ShelterId;
+	IF id_exists IS NULL THEN
+		INSERT INTO Shelters(shelterId, sheltername, address1, address2, city, state, zip, country, latitude, longitude, phone, fax, email)
+			VALUES(pShelterID, pShelterName, pAddress1, pAddress2, pCity, pState, pZip, pCountry, pLatitude, pLongitude, pPhone, pFax, pEmail);
+	END IF;
+END;
+$$ LANGUAGE plpgsql;
 "
 
 

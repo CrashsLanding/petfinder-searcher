@@ -48,8 +48,12 @@ end
 def add_pet(pet)
   conn = get_connection
   #conn = Sequel.postgres('petfinder', :user => 'overlord', :password => 'password', :host => 'localhost')
-  conn.prepare('addPet', "SELECT AddPet($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12);")
-  conn.prepare('addPetContact', "SELECT AddPetContact($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)")
+  conn.prepare('addPet', "SELECT AddPetStaging($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12);")
+  conn.prepare('addPetContact', "SELECT AddPetContactStaging($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)")
+  conn.prepare('addPetOption', "SELECT AddPetOptionStaging($1, $2);")
+  conn.prepare('addPetBreed', "SELECT AddPetBreedStaging($1, $2);")
+  conn.prepare('add')
+
   results = conn.exec_prepared('addPet', [pet.id, pet.name, pet.animal, pet.mix, pet.age, pet.shelter_id, pet.shelter_pet_id, pet.sex, pet.size, pet.description, pet.last_update, pet.status])
   #puts results
 
@@ -59,9 +63,15 @@ def add_pet(pet)
     return
   end
   results = conn.exec_prepared('addPetContact', [pet.id, contact['name'], contact['address1'], contact['address2'], contact['city'], contact['state'], contact['zip'], contact['phone'], contact['fax'], contact['email']])
-  #pet.breeds
-  #pet.options
-  #pet.contact
+
+  pet.options.each do |option|
+    conn.exec_prepared('addPetOption', [pet.id, option])
+  end
+
+  pet.breeds.each do |breed|
+    conn.exec_prepared('addPetBreed', [pet.id, breed])
+  end
+
   #pet.pictures
   #
 rescue StandardError => e

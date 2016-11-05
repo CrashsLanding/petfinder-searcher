@@ -54,6 +54,12 @@ class PetfinderServer < Sinatra::Base
     uri = URI.parse(ENV['DATABASE_URL'])
     PGconn.connect(:host => uri.hostname, :port => uri.port, :user => uri.user, :password => uri.password, :dbname => uri.path[1..-1])
   end
+
+  def get_all_pets()
+    conn = get_connection()
+    
+
+  end
 end
 
 class PetfinderScheduler

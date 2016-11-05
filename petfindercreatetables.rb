@@ -42,7 +42,7 @@ DROP FUNCTION IF EXISTS AddShelter(pShelterID varchar(10)
 	,pFax varchar(20)
 	,pEmail varchar(254));
 
-DROP FUNCTION IF EXISTS AddPet(
+DROP FUNCTION IF EXISTS AddPetStaging(
 	pPetId int
 	,pName varchar(100)
 	,pAnimal varchar(50)
@@ -56,6 +56,19 @@ DROP FUNCTION IF EXISTS AddPet(
 	,pLastUpdate timestamp
 	,pStatus char(1)
 );
+
+DROP FUNCTION IF EXISTS AddPetOptionStaging(int, varchar);
+DROP FUNCTION IF EXISTS AddPetBreedStaging(int, varchar);
+DROP FUNCTION IF EXISTS AddPetContactStaging(pPetFinderID INT
+	,pContactName varchar(255)
+	,pAddress1 varchar(1000)
+	,pAddress2 varchar(1000)
+	,pCity varchar(100)
+	,pState char(2)
+	,pZip char(5)
+	,pPhone varchar(20)
+	,pFax varchar(20)
+	,pEmail varchar(254));
 
 CREATE TABLE AgeTypes(
 	AgeTypePK serial PRIMARY KEY
@@ -226,7 +239,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION AddPet(
+CREATE OR REPLACE FUNCTION AddPetStaging(
    pPetId int
 	,pName varchar(100)
 	,pAnimal varchar(50)
@@ -244,6 +257,47 @@ RETURNS void AS $$
 BEGIN
 	INSERT INTO PetsStaging(PetFinderId, ShelterId, ShelterPetID, Name, AnimalTypeName, Mix, AgeTypeName, Gender, SizeTypeName, Description, LastUpdate, PetStatusType)
 		VALUES(pPetId, pShelterId, pShelterPetId, pName, pAnimal, pMix, pAgeTypeName, pGender, pSize, pDescription, pLastUpdate, pStatus);
+END
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION AddPetContactStaging(
+	pPetFinderID INT
+	,pContactName varchar(255)
+	,pAddress1 varchar(1000)
+	,pAddress2 varchar(1000)
+	,pCity varchar(100)
+	,pState char(2)
+	,pZip char(5)
+	,pPhone varchar(20)
+	,pFax varchar(20)
+	,pEmail varchar(254)
+)
+RETURNS void AS $$
+BEGIN
+	INSERT INTO PetContactsStaging(PetFinderID, ContactName, Address1, Address2, City, State, Zip, Phone, Fax, Email)
+		VALUES(pPetFinderID, pContactName, pAddress1, pAddress2, pCity, pState, pZip, pPhone, pFax, pEmail);
+END
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION AddPetOptionStaging(
+	pPetFinderID INT
+	,pOptionTypeName VARCHAR(50)
+)
+RETURNS void AS $$
+BEGIN
+	INSERT INTO petoptionsstaging(PetFinderID, optiontypename)
+		VALUES(pPetFinderID, pOptionTypeName);
+END
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION AddPetBreedStaging(
+	pPetFinderID INT
+	,pPetBreedName VARCHAR(255)
+)
+RETURNS void AS $$
+BEGIN
+	INSERT INTO PetBreedsStaging(PetFinderID, BreedName)
+		VALUES(pPetFinderID, pPetBreedName);
 END
 $$ LANGUAGE plpgsql;
 

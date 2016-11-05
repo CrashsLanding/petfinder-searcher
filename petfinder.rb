@@ -1,35 +1,57 @@
-require 'dotenv'
-Dotenv.load
-
 require 'json'
 require 'petfinder'
 require 'rufus-scheduler'
 require 'sinatra'
+require 'sinatra/cross_origin'
 require 'sequel'
 require 'pg'
 
+settings = Sinatra::Application.settings
+
+if settings.development?
+  require 'dotenv'
+  Dotenv.load
+end
+
+configure do
+  enable :cross_origin
+end
+
 api_key = ENV['PETFINDER_API_KEY']
 api_secret = ENV['PETFINDER_API_SECRET']
+shelter_ids = ENV['PETFINDER_SHELTER_IDS'].split(',')
 
 petfinder = Petfinder::Client.new(api_key, api_secret)
 
-
-
-get '/pets' do
-  pets = petfinder.find_pets('cat', '49505')
-  names = pets.map { |pet| pet.name }
-  {:names => names}.to_json
+get '/pets/all' do
+  pets = []
+  shelter_ids.each do |id|
+    pets += petfinder.shelter_pets(id, {count:1000})
+  end
+  pets_output = pets.map { |pet| {
+    :id => pet.id,
+    :name => pet.name,
+    :sex => pet.sex,
+    :age => pet.age,
+    :size => pet.size,
+    :breeds => pet.breeds,
+    :petType => pet.animal,
+    :petfinderUrl => 'https://www.petfinder.com/petdetail/' + pet.id,
+    :photoUrl => 'https://www.wired.com/wp-content/uploads/2015/09/google-logo.jpg'}}
+  {:pets => pets_output}.to_json
 end
 
 get '/pets/:shelter_id' do
   options = {count:1000}
   pets = petfinder.shelter_pets(params['shelter_id'], options)
-  names = pets.map { |pet| pet.names}
-  {:name => names}.to_json
-end
-
-def init_shelter_ids
-  ENV['PETFINDER_SHELTER_IDS'].split(',')
+  pets_output = pets.map { |pet| {
+    :name => pet.name,
+    :sex => pet.sex,
+    :age => pet.age,
+    :size => pet.size,
+    :breeds => pet.breeds,
+    :pet_type => pet.animal }}
+  {:pets => pets_output}.to_json
 end
 
 def get_connection
@@ -104,7 +126,6 @@ rescue StandardError => e
   {}
 end
 
-shelter_ids = init_shelter_ids()
 
 scheduler = Rufus::Scheduler.new
 

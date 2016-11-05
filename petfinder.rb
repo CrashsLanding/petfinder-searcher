@@ -6,6 +6,7 @@ require 'petfinder'
 require 'rufus-scheduler'
 # require 'sinatra'
 require 'sequel'
+require 'pg'
 
 api_key = ENV['PETFINDER_API_KEY']
 api_secret = ENV['PETFINDER_API_SECRET']
@@ -31,46 +32,34 @@ def init_shelter_ids
   ENV['PETFINDER_SHELTER_IDS'].split(',')
 end
 
+def get_connection
+  PGconn.connect(:host => 'localhost', :user => 'overlord', :password => 'password', :dbname => 'petfinder', :port => 5432)
+end
+
 def add_shelter(shelter)
-  conn = Sequel.postgres('petfinder', :user => 'overlord', :password => 'password', :host => 'localhost')
-  conn.run("SELECT AddShelter('#{shelter.id}',
-              '#{shelter.name.gsub('\'','\'\'')}',
-              '#{shelter.address1.gsub('\'','\'\'')}',
-              '#{shelter.address2.gsub('\'','\'\'')}',
-              '#{shelter.city.gsub('\'','\'\'')}',
-              '#{shelter.state}',
-              '#{shelter.zip}',
-              '#{shelter.country.gsub('\'','\'\'')}',
-              #{shelter.latitude},
-              #{shelter.longitude},
-              '#{shelter.phone}',
-              '#{shelter.fax}',
-              '#{shelter.email}');")
+  conn = get_connection
+  conn.prepare('addShelter', "SELECT AddShelter($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13);")
+  conn.exec_prepared('addShelter', [shelter.id, shelter.name, shelter.address1, shelter.address2, shelter.city, shelter.state, shelter.zip, shelter.country, shelter.latitude, shelter.longitude, shelter.phone, shelter.fax, shelter.email])
 rescue StandardError => e
   puts e
+  puts e.backtrace
 end
 
 def add_pet(pet)
-  conn = Sequel.postgres('petfinder', :user => 'overlord', :password => 'password', :host => 'localhost')
-  conn.run("SELECT AddPet(#{pet.id}
-              ,'#{pet.name}'
-              ,'#{pet.animal}'
-              ,'#{pet.mix}'
-              ,'#{pet.age}'
-              ,'#{pet.shelter_id}'
-              ,'#{pet.shelter_pet_id}'
-              ,'#{pet.sex}'
-              ,'#{pet.size}'
-              ,'#{pet.description}'
-              ,'#{pet.last_update}'
-              ,'#{pet.status}'
+  conn = get_connection
+  #conn = Sequel.postgres('petfinder', :user => 'overlord', :password => 'password', :host => 'localhost')
+  conn.prepare('addPet', "SELECT AddPet($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12);")
+  results = conn.exec_prepared('addPet', [pet.id, pet.name, pet.animal, pet.mix, pet.age, pet.shelter_id, pet.shelter_pet_id, pet.sex, pet.size, pet.description, pet.last_update, pet.status])
 
-    );")
 
   #pet.breeds
   #pet.options
+  #pet.contact
+  #pet.pictures
+  #
 rescue StandardError => e
   puts e
+  puts e.backtrace
 end
 
 shelter_ids = init_shelter_ids()
@@ -81,14 +70,8 @@ scheduler = Rufus::Scheduler.new
   shelter_ids.each do |id|
     add_shelter(petfinder.shelter(id))
 
-    pets = petfinder.shelter_pets(id, {count:10})
-    pet = pets.first
-    puts pet.last_update
-    puts pet.size
-    puts pet.age
-    puts pet.animal
-    puts pet.sex
-
+    pets = petfinder.shelter_pets(id, {count:5})
+    add_pet(pets.first)
     # pets.each do |pet|
     #   add_pet(pet)
     # end

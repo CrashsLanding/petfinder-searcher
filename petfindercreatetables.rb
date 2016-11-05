@@ -2,7 +2,7 @@ require 'sequel'
 require 'rexml/document'
 
 #Setup DB Connection
-DB = Sequel.postgres('petfinder', :user => 'nate', :password => 'test', :host => 'localhost')
+DB = Sequel.postgres('petfinder', :user => 'overlord', :password => 'password', :host => 'localhost')
 
 
 #Creates the tables
@@ -41,6 +41,21 @@ DROP FUNCTION IF EXISTS AddShelter(pShelterID varchar(10)
 	,pPhone varchar(20)
 	,pFax varchar(20)
 	,pEmail varchar(254));
+
+DROP FUNCTION IF EXISTS AddPet(
+	pPetId int
+	,pName varchar(100)
+	,pAnimal varchar(50)
+	,pmix varchar(3)
+	,pAgeTypeName varchar(10)
+	,pShelterId varchar(10)
+	,pShelterPetId varchar(100)
+	,pGender char(1)
+	,pSize varchar(2)
+	,pDescription text
+	,pLastUpdate timestamp
+	,pStatus char(1)
+);
 
 CREATE TABLE AgeTypes(
 	AgeTypePK serial PRIMARY KEY
@@ -211,7 +226,8 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION AddPet(pPetId int
+CREATE OR REPLACE FUNCTION AddPet(
+   pPetId int
 	,pName varchar(100)
 	,pAnimal varchar(50)
 	,pmix varchar(3)
@@ -223,11 +239,11 @@ CREATE OR REPLACE FUNCTION AddPet(pPetId int
 	,pDescription text
 	,pLastUpdate timestamp
 	,pStatus char(1)
-	,pPetStatusType char(1)
 )
 RETURNS void AS $$
 BEGIN
-
+	INSERT INTO PetsStaging(PetFinderId, ShelterId, ShelterPetID, Name, AnimalTypeName, Mix, AgeTypeName, Gender, SizeTypeName, Description, LastUpdate, PetStatusType)
+		VALUES(pPetId, pShelterId, pShelterPetId, pName, pAnimal, pMix, pAgeTypeName, pGender, pSize, pDescription, pLastUpdate, pStatus);
 END
 $$ LANGUAGE plpgsql;
 

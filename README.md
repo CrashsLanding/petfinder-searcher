@@ -9,6 +9,7 @@ It should look like:
 ```
 PETFINDER_API_KEY=SomeApiKeyHere
 PETFINDER_API_SECRET=SomeApiSecretHere
+PETFINDER_SHELTER_IDS=CommaSeperatedListOfIds
 ```
 
 We are using Bundler, so before you go any further, make sure bundler is installed with

@@ -70,17 +70,18 @@ CREATE TABLE Shelters (
 
 CREATE TABLE Pets (
 	PetPK SERIAL PRIMARY KEY
-	,PetFinderID int UNIQUE
+	,PetFinderID int UNIQUE NOT NULL
 	,ShelterPK INT REFERENCES Shelters(ShelterPK)
 	,ShelterPetID varchar(100)
 	,Name varchar(100)
 	,AnimalTypePK INT REFERENCES AnimalTypes(AnimalTypePK)
+	,mix varchar(3)
+	,AgeTypePK INT REFERENCES AgeTypes(AgeTypepk)
 	,Gender char(1) NOT NULL
 	,SizeTypePK INT REFERENCES SizeTypes(SizeTypePK)
 	,Description varchar(2000)
 	,LastUpdate timestamp
 	,PetStatusType char(1) NOT NULL
-	,AgeTypePK INT REFERENCES AgeTypes(AgeTypepk)
 );
 
 CREATE TABLE PetBreeds (

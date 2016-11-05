@@ -15,3 +15,10 @@ get '/pets' do
   names = pets.map { |pet| pet.name }
   {:names => names}.to_json
 end
+
+get '/pets/:shelter_id' do
+  options = {count:1000}
+  pets = petfinder.shelter_pets(params['shelter_id'], options)
+  names = pets.map { |pet| pet.names}
+  {:name => names}.to_json
+end

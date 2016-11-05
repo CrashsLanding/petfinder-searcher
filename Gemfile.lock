@@ -1,0 +1,19 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    excon (0.54.0)
+    mini_portile2 (2.1.0)
+    nokogiri (1.6.8.1)
+      mini_portile2 (~> 2.1.0)
+    petfinder (1.0.3)
+      excon (~> 0.26)
+      nokogiri (~> 1.6)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  petfinder (= 1.0.3)!
+
+BUNDLED WITH
+   1.12.5

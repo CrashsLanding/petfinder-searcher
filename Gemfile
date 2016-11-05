@@ -7,4 +7,5 @@ source 'https://rubygems.org' do
   gem 'rufus-scheduler'
   gem 'sequel'
   gem 'pg'
+  gem "sinatra-cross_origin", "~> 0.3.1"
 end

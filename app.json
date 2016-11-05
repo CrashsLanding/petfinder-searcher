@@ -1,0 +1,21 @@
+{
+  "name": "Petfinder Search",
+  "description": "A pretty wrapper/caching layer for the Petfinder API",
+  "repository": "https://github.com/CrashsLanding/petfinder-server",
+  "logo": "https://www.petfinder.com/images/design/mastheads/no_logos_tophat-3-2010.png",
+  "keywords": ["petfinder", "search"],
+  "env": {
+    "PETFINDER_API_KEY": {
+      "description": "Your Petfinder API key.",
+      "required": "true"
+    },
+    "PETFINDER_API_SECRET": {
+      "description": "Your Petfinder API secret.",
+      "required": "true"
+    },
+    "PETFINDER_SHELTER_IDS": {
+      "description": "A comma seperated list (no spaces) of shelter ids from Petfinder.",
+      "required": "true"
+    }
+  }
+}

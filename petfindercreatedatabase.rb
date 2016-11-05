@@ -5,7 +5,7 @@ require 'uri'
 class PetFinderCreateDatabase
 
 	def initialize(database_url)
-		@database_url = ENV['DATABASE_URL']
+		@database_url = database_url
 	end
 
 	def create_db

@@ -2,7 +2,7 @@ require 'sequel'
 require 'rexml/document'
 
 #Setup DB Connection
-DB = Sequel.postgres('petfinder', :user => 'nate', :password => 'test', :host => 'localhost')
+DB = Sequel.postgres('petfinder', :user => 'overlord', :password => 'password', :host => 'localhost')
 
 
 #Creates the tables
@@ -114,7 +114,7 @@ CREATE TABLE PetsStaging (
 	,AgeTypeName varchar(10)
 	,Gender char(1)
 	,SizeTypeName varchar(2)
-	,Descrition text
+	,Description text
 	,LastUpdate timestamp
 	,PetStatusType char(1)
 );

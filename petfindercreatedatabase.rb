@@ -11,11 +11,11 @@ class PetFinderCreateDatabase
 	def create_db
 		#Setup DB Connection
 		uri = URI.parse(@database_url)
-		DB = Sequel.postgres(uri.path[1..-1], :user => uri.user, :password => uri.password, :host => uri.hostname, :port => uri.port)
-		#:host => uri.hostname, :port => uri.port, :user => uri.user, :password => uri.password, :dbname => uri.path[1..-1]
+		database_name = uri.path[1..-1]
+		conn = Sequel.postgres(database_name, :user => uri.user, :password => uri.password, :host => uri.hostname, :port => uri.port)
 
 		#Creates the tables
-		DB.run "
+		conn.run("
 		DROP TABLE IF EXISTS PetsStaging;
 		DROP TABLE IF EXISTS PetPhotosStaging;
 		DROP TABLE IF EXISTS PetContactsStaging;
@@ -32,6 +32,7 @@ class PetFinderCreateDatabase
 
 		DROP TABLE IF EXISTS SizeTypes;
 		DROP TABLE IF EXISTS OptionTypes;
+		DROP TABLE IF EXISTS GenderTypes;
 		DROP TABLE IF EXISTS BreedTypesStaging;
 		DROP TABLE IF EXISTS BreedTypes;
 		DROP TABLE IF EXISTS AnimalTypes;
@@ -100,6 +101,12 @@ class PetFinderCreateDatabase
 			BreedName varchar(255) NOT NULL
 		);
 
+		CREATE TABLE GenderTypes (
+			GenderPK SERIAL PRIMARY KEY
+			,PetFinderGender char(1)
+			,GenderDisplayName varchar(10)
+		);
+
 		CREATE TABLE OptionTypes (
 			OptionTypePK SERIAL PRIMARY KEY
 			, OptionTypeName varchar(50) UNIQUE NOT NULL
@@ -136,7 +143,7 @@ class PetFinderCreateDatabase
 			,AnimalTypePK INT REFERENCES AnimalTypes(AnimalTypePK)
 			,mix varchar(3)
 			,AgeTypePK INT REFERENCES AgeTypes(AgeTypepk)
-			,Gender char(1) NOT NULL
+			,GenderPK int NOT NULL REFERENCES GenderTypes(GenderPK)
 			,SizeTypePK INT REFERENCES SizeTypes(SizeTypePK)
 			,Description text
 			,LastUpdate timestamp
@@ -495,70 +502,74 @@ class PetFinderCreateDatabase
 			--Update Pets
 			UPDATE Pets
 			SET ShelterPK = ps2.ShelterPK
-				,ShelterPetID = ps2.ShelterPetID
-				,Name = ps2.Name
-				,AnimalTypePK = ps2.AnimalTypePK
-				,Gender = ps2.Gender
-				,SizeTypePK = ps2.SizeTypePK
-				,Description = ps2.Description
-				,LastUpdate = ps2.LastUpdate
-				,PetStatusType = ps2.PetStatusType
-				,AgeTypePK = ps2.AgeTypePK
+			  ,ShelterPetID = ps2.ShelterPetID
+			  ,Name = ps2.Name
+			  ,AnimalTypePK = ps2.AnimalTypePK
+			  ,Gender = ps2.Gender
+			  ,SizeTypePK = ps2.SizeTypePK
+			  ,Description = ps2.Description
+			  ,LastUpdate = ps2.LastUpdate
+			  ,PetStatusType = ps2.PetStatusType
+			  ,AgeTypePK = ps2.AgeTypePK
 			FROM Pets p
 			JOIN (
-				SELECT ps.PetFinderID
-					,s.ShelterPK
-					,ps.ShelterPetID
-					,ps.Name
-					,ant.AnimalTypePK
-					,ps.Gender
-					,st.SizeTypePK
-					,ps.Description
-					,ps.LastUpdate
-					,ps.PetStatusType
-					,agt.AgeTypePK
-				FROM PetsStaging ps
-				JOIN Shelters s ON ps.ShelterID = s.ShelterID
-				JOIN AnimalTypes ant ON ant.AnimalTypeName = ps.AnimalTypeName
-				JOIN SizeTypes st ON st.SizeTypeName = ps.SizeTypeName
-				JOIN AgeTypes agt ON agt.AgeTypeName = ps.AgeTypeName
-			) ps2 ON ps2.PetFinderID = p.PetFinderID;
+			  SELECT ps.PetFinderID
+			    ,s.ShelterPK
+			    ,ps.ShelterPetID
+			    ,ps.Name
+			    ,ant.AnimalTypePK
+			    ,gt.GenderPK
+			    ,st.SizeTypePK
+			    ,ps.Description
+			    ,ps.LastUpdate
+			    ,ps.PetStatusType
+			    ,agt.AgeTypePK
+			  FROM PetsStaging ps
+			  JOIN Shelters s ON ps.ShelterID = s.ShelterID
+			  JOIN AnimalTypes ant ON ant.AnimalTypeName = ps.AnimalTypeName
+			  JOIN SizeTypes st ON st.SizeTypeName = ps.SizeTypeName
+			  JOIN AgeTypes agt ON agt.AgeTypeName = ps.AgeTypeName
+			  JOIN GenderTypes gt ON gt.PetFinderGender = ps.Gender
+			) ps2 ON ps2.PetFinderID = p.PetFinderID
+			--Future Improvement. Add a WHERE clause to make it so that you do not do an update when there is nothing to change
+			;
 
 			--Insert Pets
 			INSERT INTO Pets (
-				PetFinderID
-				,ShelterPK
-				,ShelterPetID
-				,Name
-				,AnimalTypePK
-				,Gender
-				,SizeTypePK
-				,Description
-				,LastUpdate
-				,PetStatusType
-				,AgeTypePK
+			  PetFinderID
+			  ,ShelterPK
+			  ,ShelterPetID
+			  ,Name
+			  ,AnimalTypePK
+			  ,Gender
+			  ,SizeTypePK
+			  ,Description
+			  ,LastUpdate
+			  ,PetStatusType
+			  ,AgeTypePK
 			)
 			SELECT ps.PetFinderID
-				,s.ShelterPK
-				,ps.ShelterPetID
-				,ps.Name
-				,ant.AnimalTypePK
-				,ps.Gender
-				,st.SizeTypePK
-				,ps.Description
-				,ps.LastUpdate
-				,ps.PetStatusType
-				,agt.AgeTypePK
+			  ,s.ShelterPK
+			  ,ps.ShelterPetID
+			  ,ps.Name
+			  ,ant.AnimalTypePK
+			  ,gt.GenderPK
+			  ,st.SizeTypePK
+			  ,ps.Description
+			  ,ps.LastUpdate
+			  ,ps.PetStatusType
+			  ,agt.AgeTypePK
 			FROM PetsStaging ps
 			JOIN Shelters s ON ps.ShelterID = s.ShelterID
 			JOIN AnimalTypes ant ON ant.AnimalTypeName = ps.AnimalTypeName
 			JOIN SizeTypes st ON st.SizeTypeName = ps.SizeTypeName
 			JOIN AgeTypes agt ON agt.AgeTypeName = ps.AgeTypeName
+			JOIN GenderTypes gt ON gt.PetFinderGender = ps.Gender
 			WHERE NOT EXISTS (
-				SELECT 1
-				FROM Pets p
-				WHERE ps.PetFinderID = p.PetFinderID
-				);
+			  SELECT 1
+			  FROM Pets p
+			  WHERE ps.PetFinderID = p.PetFinderID
+			  );
 			--End Pets
 
 			DELETE FROM PetBreeds pb
@@ -690,34 +701,34 @@ class PetFinderCreateDatabase
 
 
 
-		"
+		")
 
 
 		# Populates all of the tables using the xsd
 		doc = REXML::Document.new(File.new('petfinder.xsd'))
 
 
-		AnimalTypes = DB[:animaltypes]
+		animalTypes = conn[:animaltypes]
 
 		REXML::XPath.each(doc, '//xs:simpleType[@name="animalType"]//xs:enumeration/@value') do |e|
-		  AnimalTypes.insert(:animaltypename => e.value)
+		  animalTypes.insert(:animaltypename => e.value)
 		end
 
-		petoptiontypes = DB[:optiontypes]
+		petoptiontypes = conn[:optiontypes]
 
 		REXML::XPath.each(doc, '//xs:simpleType[@name="petOptionType"]//xs:enumeration/@value') do |f|
 		  petoptiontypes.insert(:optiontypename => f.value)
 			# puts f.value
 		end
 
-		breedtypesstaging = DB[:breedtypesstaging]
+		breedtypesstaging = conn[:breedtypesstaging]
 
 		REXML::XPath.each(doc, '//xs:simpleType[@name="petfinderBreedType"]//xs:enumeration/@value') do |f|
 		  breedtypesstaging.insert(:breedname => f.value)
 			# puts f.value
 		end
 
-		DB.run "
+		conn.run "
 			INSERT INTO BreedTypes (
 				BreedName
 			)
@@ -728,19 +739,26 @@ class PetFinderCreateDatabase
 			DROP TABLE BreedTypesStaging;
 		"
 
-		AgeTypes = DB[:agetypes]
+		ageTypes = conn[:agetypes]
 
 		REXML::XPath.each(doc, '//xs:simpleType[@name="petAgeType"]//xs:enumeration/@value') do |f|
-		  AgeTypes.insert(:agetypename => f.value)
+		  ageTypes.insert(:agetypename => f.value)
 			# puts f.value
 		end
 
-		SizeTypes = DB[:sizetypes]
+		sizeTypes = conn[:sizetypes]
 
 		REXML::XPath.each(doc, '//xs:simpleType[@name="petSizeType"]//xs:enumeration/@value') do |f|
-		  SizeTypes.insert(:sizetypename => f.value)
+		  sizeTypes.insert(:sizetypename => f.value)
 			# puts f.value
 		end
+
+		conn.run "
+			INSERT INTO GenderTypes (PetFinderGender, GenderDisplayName)
+			VALUES ('M','Male');
+			INSERT INTO GenderTypes (PetFinderGender, GenderDisplayName)
+			VALUES ('F','Female');
+		";
 	end
 #puts doc
 end

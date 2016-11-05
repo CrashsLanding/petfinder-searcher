@@ -160,13 +160,18 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION AddPet(pPetFinderID int
-	,pShelterID varchar(10)
-	,pShelterPetID varchar(100)
+CREATE OR REPLACE FUNCTION AddPet(pPetId int
 	,pName varchar(100)
+	,pAnimal varchar(50)
 	,pmix varchar(3)
+	,pAgeTypeName varchar(10)
+	,pShelterId varchar(10)
+	,pShelterPetId varchar(100)
 	,pGender char(1)
+	,pSize varchar(2)
 	,pDescription text
+	,pLastUpdate timestamp
+	,pStatus char(1)
 	,pPetStatusType char(1)
 )
 RETURNS void AS $$

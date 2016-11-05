@@ -31,7 +31,7 @@ def init_shelter_ids
   ENV['PETFINDER_SHELTER_IDS'].split(',')
 end
 
-def shelter_to_db(shelter)
+def add_shelter(shelter)
   conn = Sequel.postgres('petfinder', :user => 'overlord', :password => 'password', :host => 'localhost')
   conn.run("SELECT AddShelter('#{shelter.id}',
               '#{shelter.name.gsub('\'','\'\'')}',
@@ -50,9 +50,25 @@ rescue StandardError => e
   puts e
 end
 
-def pets_to_db
+def add_pet(pet)
   conn = Sequel.postgres('petfinder', :user => 'overlord', :password => 'password', :host => 'localhost')
-  conn.run()
+  conn.run("SELECT AddPet(#{pet.id}
+              ,'#{pet.name}'
+              ,'#{pet.animal}'
+              ,'#{pet.mix}'
+              ,'#{pet.age}'
+              ,'#{pet.shelter_id}'
+              ,'#{pet.shelter_pet_id}'
+              ,'#{pet.sex}'
+              ,'#{pet.size}'
+              ,'#{pet.description}'
+              ,'#{pet.last_update}'
+              ,'#{pet.status}'
+
+    );")
+
+  #pet.breeds
+  #pet.options
 rescue StandardError => e
   puts e
 end
@@ -61,11 +77,21 @@ shelter_ids = init_shelter_ids()
 
 scheduler = Rufus::Scheduler.new
 
-scheduler.every '1h' do
+# scheduler.every '1h' do
   shelter_ids.each do |id|
-    shelter_to_db(petfinder.shelter(id))
+    add_shelter(petfinder.shelter(id))
 
-    #pets = petfinder.shelter_pets(id, {count:1000})
+    pets = petfinder.shelter_pets(id, {count:10})
+    pet = pets.first
+    puts pet.last_update
+    puts pet.size
+    puts pet.age
+    puts pet.animal
+    puts pet.sex
+
+    # pets.each do |pet|
+    #   add_pet(pet)
+    # end
     # store pets
   end
-end
+# end

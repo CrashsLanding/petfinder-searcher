@@ -23,6 +23,7 @@ get '/pets/all' do
     pets += petfinder.shelter_pets(id, {count:1000})
   end
   pets_output = pets.map { |pet| {
+    :id => pet.id,
     :name => pet.name,
     :sex => pet.sex,
     :age => pet.age,

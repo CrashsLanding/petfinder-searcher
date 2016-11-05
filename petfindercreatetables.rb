@@ -480,7 +480,7 @@ BEGIN
 		JOIN BreedTypes bt ON pbs.BreedName = bt.BreedName
 		JOIN Pets p ON p.PetFinderID = pbs.PetFinderID
 		WHERE bt.BreedTypePK = pb.BreedTypePK
-		AND p.PetKey = pb.PetKey
+		AND p.PetPK = pb.PetPK
 	);
 
 	INSERT INTO PetBreeds (PetPK, BreedTypePK)
@@ -493,7 +493,7 @@ BEGIN
 		SELECT 1
 		FROM PetBreeds pb
 		WHERE bt.BreedTypePK = pb.BreedTypePK
-		AND p.PetKey = pb.PetKey
+		AND p.PetPK = pb.PetPK
 	);
 
 	UPDATE PetContacts
@@ -507,7 +507,7 @@ BEGIN
 		,Fax = pcs.Fax
 		,Email = pcs.Email
 	FROM PetContacts pc
-	JOIN Pets p ON p.PetKey = pc.PetKey
+	JOIN Pets p ON p.PetPK = pc.PetPK
 	JOIN PetContactsStaging pcs ON pcs.PetFinderID = p.PetFinderID
 	;
 
@@ -548,7 +548,7 @@ BEGIN
 		JOIN OptionTypes ot ON pos.OptionTypeName = ot.OptionTypeName
 		JOIN Pets p ON p.PetFinderID = pos.PetFinderID
 		WHERE ot.OptionTypePK = po.OptionTypePK
-		AND p.PetKey = po.PetKey
+		AND p.PetPK = po.PetPK
 	);
 
 	INSERT INTO PetOptions (PetPK, OptionTypePK)
@@ -561,7 +561,7 @@ BEGIN
 		SELECT 1
 		FROM PetOptions pb
 		WHERE ot.OptionTypePK = po.OptionTypePK
-		AND p.PetKey = po.PetKey
+		AND p.PetPK = po.PetPK
 	);
 
 	DELETE FROM PetPhotos pp

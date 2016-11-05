@@ -22,6 +22,8 @@ DROP TABLE IF EXISTS BreedTypes;
 DROP TABLE IF EXISTS AnimalTypes;
 DROP TABLE IF EXISTS AgeTypes;
 
+DROP FUNCTION IF EXISTS AddShelter;
+
 CREATE TABLE AgeTypes(
 	AgeTypePK serial PRIMARY KEY
 	,AgeTypeName varchar(10) UNIQUE NOT NULL
@@ -125,21 +127,22 @@ CREATE OR REPLACE FUNCTION AddShelter(pShelterID varchar(10)
 	,pAddress2 varchar(1000)
 	,pCity varchar(100)
 	,pState char(2)
-	,pZip char(5) --Change to 5+4 format if necessary
+	,pZip char(5)
 	,pCountry varchar(100)
 	,pLatitude decimal
 	,pLongitude decimal
-	,pPhone varchar(20) --not sure of the format so giving it extra space
+	,pPhone varchar(20)
 	,pFax varchar(20)
 	,pEmail varchar(254))
 RETURNS void AS $$
-DECLARE id_exists BOOLEAN := false;
 BEGIN
-	SELECT TRUE INTO id_exists FROM Shelters WHERE pShelterID = ShelterId;
-	IF id_exists IS NULL THEN
-		INSERT INTO Shelters(shelterId, sheltername, address1, address2, city, state, zip, country, latitude, longitude, phone, fax, email)
-			VALUES(pShelterID, pShelterName, pAddress1, pAddress2, pCity, pState, pZip, pCountry, pLatitude, pLongitude, pPhone, pFax, pEmail);
-	END IF;
+	UPDATE Shelters SET ShelterName = pShelterName, address1 = pAddress1, address2 = pAddress2,
+											City = pCity, State = pState, Zip = pZip, Country = pCountry,
+											latitude = pLatitude, Longitude = pLongitude, Phone = pPhone, Fax = pFax,
+											Email = pEmail
+	WHERE shelterID = pShelterID;
+	INSERT INTO Shelters(shelterId, sheltername, address1, address2, city, state, zip, country, latitude, longitude, phone, fax, email)
+		SELECT pShelterID, pShelterName, pAddress1, pAddress2, pCity, pState, pZip, pCountry, pLatitude, pLongitude, pPhone, pFax, pEmail WHERE NOT EXISTS(SELECT 1 FROM Shelters WHERE ShelterID = pShelterID);
 END;
 $$ LANGUAGE plpgsql;
 "

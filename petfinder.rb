@@ -1,12 +1,17 @@
-require 'petfinder'
+require 'dotenv'
+Dotenv.load
 
-api_key = ''
-api_secret = ''
+require 'petfinder'
+require 'sinatra'
+require 'json'
+
+api_key = ENV['PETFINDER_API_KEY']
+api_secret = ENV['PETFINDER_API_SECRET']
 
 petfinder = Petfinder::Client.new(api_key, api_secret)
-shelter = petfinder.shelter('MI988')
-puts shelter.name
-pets = petfinder.find_pets('cat', '49505')
-pets.each do |pet|
-  puts pet.id
+
+get '/pets' do
+  pets = petfinder.find_pets('cat', '49505')
+  names = pets.map { |pet| pet.name }
+  {:names => names}.to_json
 end

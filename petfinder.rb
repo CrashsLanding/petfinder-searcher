@@ -52,7 +52,7 @@ def add_pet(pet)
   conn.prepare('addPetContact', "SELECT AddPetContactStaging($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)")
   conn.prepare('addPetOption', "SELECT AddPetOptionStaging($1, $2);")
   conn.prepare('addPetBreed', "SELECT AddPetBreedStaging($1, $2);")
-  conn.prepare('add')
+  conn.prepare('addPetPhoto', "SELECT AddPetPhotoStaging($1, $2, $3, $4);")
 
   results = conn.exec_prepared('addPet', [pet.id, pet.name, pet.animal, pet.mix, pet.age, pet.shelter_id, pet.shelter_pet_id, pet.sex, pet.size, pet.description, pet.last_update, pet.status])
   #puts results
@@ -72,8 +72,13 @@ def add_pet(pet)
     conn.exec_prepared('addPetBreed', [pet.id, breed])
   end
 
-  #pet.pictures
-  #
+  pet.photos.each do |pic|
+    conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 'x', pic.large])
+    conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 'pn', pic.medium])
+    conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 'fpm', pic.small])
+    conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 'pnt', pic.thumbnail])
+    conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 't', pic.tiny])
+  end
 rescue StandardError => e
   puts e
   puts e.backtrace
@@ -107,7 +112,7 @@ scheduler = Rufus::Scheduler.new
   shelter_ids.each do |id|
     add_shelter(petfinder.shelter(id))
 
-    pets = petfinder.shelter_pets(id, {count:5})
+    pets = petfinder.shelter_pets(id, {count: 5})
     add_pet(pets.first)
     # pets.each do |pet|
     #   add_pet(pet)

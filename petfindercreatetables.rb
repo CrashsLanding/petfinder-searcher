@@ -59,6 +59,7 @@ DROP FUNCTION IF EXISTS AddPetStaging(
 
 DROP FUNCTION IF EXISTS AddPetOptionStaging(int, varchar);
 DROP FUNCTION IF EXISTS AddPetBreedStaging(int, varchar);
+DROP FUNCTION IF EXISTS AddPetPhotoStaging(int, int, varchar, text);
 DROP FUNCTION IF EXISTS AddPetContactStaging(pPetFinderID INT
 	,pContactName varchar(255)
 	,pAddress1 varchar(1000)
@@ -298,6 +299,19 @@ RETURNS void AS $$
 BEGIN
 	INSERT INTO PetBreedsStaging(PetFinderID, BreedName)
 		VALUES(pPetFinderID, pPetBreedName);
+END
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION AddPetPhotoStaging(
+	pPetFinderID INT
+	,pPhotoId INT
+	,pSize VARCHAR(3)
+	,pUrl TEXT
+)
+RETURNS void AS $$
+BEGIN
+	INSERT INTO petPhotosStaging(PetFinderID, photoid, photosize, photourl)
+		VALUES(pPetFinderID, pPhotoId, pSize, pUrl);
 END
 $$ LANGUAGE plpgsql;
 

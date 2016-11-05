@@ -247,6 +247,25 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION AddPetContact(
+	pPetFinderID INT
+	,pContactName varchar(255)
+	,pAddress1 varchar(1000)
+	,pAddress2 varchar(1000)
+	,pCity varchar(100)
+	,pState char(2)
+	,pZip char(5)
+	,pPhone varchar(20)
+	,pFax varchar(20)
+	,pEmail varchar(254)
+)
+RETURNS void AS $$
+BEGIN
+	INSERT INTO PetContactsStaging(PetFinderID, ContactName, Address1, Address2, City, State, Zip, Phone, Fax, Email)
+		VALUES(pPetFinderID, pContactName, pAddress1, pAddress2, pCity, pState, pZip, pPhone, pFax, pEmail);
+END
+$$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION AddPetBreed (
 	pPetFinderID int
 	,pBreedName varchar(255)

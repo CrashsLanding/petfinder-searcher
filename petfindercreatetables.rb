@@ -2,7 +2,7 @@ require 'sequel'
 require 'rexml/document'
 
 #Setup DB Connection
-DB = Sequel.postgres('petfinder', :user => 'overlord', :password => 'password', :host => 'localhost')
+DB = Sequel.postgres('petfinder', :user => 'nate', :password => 'test', :host => 'localhost')
 
 
 #Creates the tables
@@ -98,12 +98,32 @@ CREATE TABLE Pets (
 	,PetStatusType char(1) NOT NULL
 );
 
+CREATE TABLE PetsStaging (
+	PetFinderID INT
+	,ShelterID varchar(10)
+	,ShelterPetID varchar(100)
+	,Name varchar(100)
+	,AnimalTypeName varchar(10)
+	,Mix varchar(3)
+	,AgeTypeName varchar(10)
+	,Gender char(1)
+	,SizeTypeName varchar(2)
+	,Descrition text
+	,LastUpdate timestamp
+	,PetStatusType char(1)
+);
+
 CREATE TABLE PetBreeds (
 	PetBreedsPK serial PRIMARY KEY
 	,PetPK INT REFERENCES Pets(PetPK)
 	,BreedTypePK INT REFERENCES BreedTypes(BreedTypePK)
 	,UNIQUE (PetPK,BreedTypePK)
 );
+
+CREATE TABLE PetBreedsStaging (
+	PetFinderID int
+	,BreedName varchar(255)
+)
 
 CREATE TABLE PetContacts (
 	PetContactPK SERIAL PRIMARY KEY
@@ -119,19 +139,44 @@ CREATE TABLE PetContacts (
 	,Email varchar(254)
 );
 
+CREATE TABLE PetContactsStaging (
+	PetFinderID INT
+	,ContactName varchar(255)
+	,Address1 varchar(1000)
+	,Address2 varchar(1000)
+	,City varchar(100)
+	,State char(2)
+	,Zip char(5) --Change to 5+4 format if necessary
+	,Phone varchar(20) --not sure of the format so giving it extra space
+	,Fax varchar(20)
+	,Email varchar(254)
+)
+
 CREATE TABLE PetOptions (
 	PetOptionPK SERIAL PRIMARY KEY
 	,PetPK INT REFERENCES Pets(PetPK)
 	,OptionTypePK INT REFERENCES OptionTypes(OptionTypePK)
 );
 
+CREATE TABLE PetOptionsStaging (
+	PetFinderID int
+	,OptionTypeName varchar(50)
+)
+
 CREATE TABLE PetPhotos (
 	PetPhotoPK serial PRIMARY KEY
 	,PetPK INT REFERENCES Pets(PetPK)
 	,PhotoID int
 	,PhotoSize varchar(3)
-	,PhotoLocation varchar(1000)
+	,PhotoURL text
 );
+
+CREATE TABLE PetPhotosStaging (
+	PetFinderID int
+	,PhotoID int
+	,PhotoSize varchar(3)
+	,PhotoURL text
+)
 
 CREATE OR REPLACE FUNCTION AddShelter(
   pShelterID varchar(10)
@@ -176,9 +221,114 @@ CREATE OR REPLACE FUNCTION AddPet(pPetId int
 )
 RETURNS void AS $$
 BEGIN
-	
+
 END
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION AddPetBreed (
+	pPetFinderID int
+	,pBreedName varchar(255)
+)
+RETURNS text AS $$
+BEGIN
+	IF NOT EXISTS (
+		SELECT 1
+		FROM Pets p
+		WHERE p.PetFinderID = pPetFinderID
+	)
+	THEN
+		RETURN 'Could not find Pet';
+	END IF;
+
+	--This is just in case a new breed gets added that is not in the xsd
+	IF NOT EXISTS (
+		SELECT 1
+		FROM BreedTypes bt
+		WHERE bt.BreedName = pBreedName
+	)
+	THEN
+		INSERT INTO BreedTypes (BreedName)
+		SELECT pBreedName;
+	END IF;
+
+	INSERT INTO PetBreeds(PetPK, BreedTypePK)
+	SELECT p.PetPK
+		,bt.BreedTypePK
+	FROM Pets p
+	CROSS JOIN BreedTypes bt
+	WHERE p.PetFinderID = pPetFinderID
+	AND bt.BreedName = pBreedName;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION AddPetOptions (
+	pPetFinderID int
+	,pOptionTypeName varchar(50)
+)
+RETURNS text AS $$
+BEGIN
+	IF NOT EXISTS (
+		SELECT 1
+		FROM Pets p
+		WHERE p.PetFinderID = pPetFinderID
+	)
+	THEN
+		RETURN 'Could not find Pet';
+	END IF;
+
+	--This is just in case a new Pet Option gets added that is not in the xsd
+	IF NOT EXISTS (
+		SELECT 1
+		FROM OptionTypes ot
+		WHERE ot.OptionTypeName = pOptionTypeName
+	)
+	THEN
+		INSERT INTO OptionTypes (OptionTypeName)
+		SELECT pOptionTypeName;
+	END IF;
+
+	INSERT INTO PetOptions(PetPK, OptionTypePK)
+	SELECT p.PetPK
+		,ot.OptionTypePK
+	FROM Pets p
+	CROSS JOIN OptionTypes ot
+	WHERE p.PetFinderID = pPetFinderID
+	AND ot.OptionTypeName = pOptionTypeName;
+END
+$$ LANGUAGE plpgsql;
+
+
+
+CREATE OR REPLACE FUNCTION DeletePet (
+	pPetKey int
+)
+RETURNS void as $$
+BEGIN
+	IF EXISTS (SELECT 1 FROM Pets p WHERE p.PetPK = pPetKey)
+	THEN
+		DELETE
+		FROM PetBreeds
+		WHERE PetPK = pPetKey;
+
+		DELETE
+		FROM PetPhotos
+		WHERE PetPK = pPetKey;
+
+		DELETE
+		FROM PetContacts
+		WHERE PetPK = pPetKey;
+
+		DELETE
+		FROM PetOptions
+		WHERE PetPK = pPetKey;
+
+		DELETE
+		FROM Pets
+		WHERE PetPK = pPetKey;
+	END IF;
+END
+$$ LANGUAGE plpgsql;
+
 "
 
 

@@ -538,7 +538,7 @@ BEGIN
 	WHERE NOT EXISTS (
 		SELECT 1
 		FROM PetContacts pc
-		WHERE pc.PetFinderID = p.PetFinderID
+		WHERE pc.PetPK = p.PetPK
 	);
 
 	DELETE FROM PetOptions po
@@ -554,12 +554,12 @@ BEGIN
 	INSERT INTO PetOptions (PetPK, OptionTypePK)
 	SELECT p.PetPK
 		,ot.OptionTypePK
-	FROM PetOptionsStaging pbs
-	JOIN OptionTypes ot ON pbs.BreedName = bt.BreedName
-	JOIN Pets p ON p.PetFinderID = pbs.PetFinderID
+	FROM PetOptionsStaging pos
+	JOIN OptionTypes ot ON pos.OptionTypeName = ot.OptionTypeName
+	JOIN Pets p ON p.PetFinderID = pos.PetFinderID
 	WHERE NOT EXISTS (
 		SELECT 1
-		FROM PetOptions pb
+		FROM PetOptions po
 		WHERE ot.OptionTypePK = po.OptionTypePK
 		AND p.PetPK = po.PetPK
 	);

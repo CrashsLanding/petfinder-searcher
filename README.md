@@ -1,6 +1,6 @@
 Petfinder Server
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/CrashsLanding/petfinder-server)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/CrashsLanding/petfinder-server/tree/master)
 
 ### Setup
 
@@ -11,7 +11,7 @@ It should look like:
 ```
 PETFINDER_API_KEY=SomeApiKeyHere
 PETFINDER_API_SECRET=SomeApiSecretHere
-PETFINDER_SHELTER_IDS=CommaSeperatedListOfIds
+PETFINDER_SHELTER_IDS=Comma,Seperated,List,Of,Ids
 ```
 
 We are using Postgres with pg_config, so you need to have that installed, and accessible from the path before going further. Talk to Kevin is this isn't fixed / easier to deal with, and you're still reading it.

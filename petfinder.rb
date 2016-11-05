@@ -16,13 +16,19 @@ configure do
   enable :cross_origin
 end
 
+set :public_folder, 'build'
+
 api_key = ENV['PETFINDER_API_KEY']
 api_secret = ENV['PETFINDER_API_SECRET']
 shelter_ids = ENV['PETFINDER_SHELTER_IDS'].split(',')
 
 petfinder = Petfinder::Client.new(api_key, api_secret)
 
-get '/pets/all' do
+get '/' do
+  redirect '/index.html'
+end
+
+get '/api/pets/all' do
   pets = []
   shelter_ids.each do |id|
     pets += petfinder.shelter_pets(id, {count:1000})
@@ -36,11 +42,15 @@ get '/pets/all' do
     :breeds => pet.breeds,
     :petType => pet.animal,
     :petfinderUrl => 'https://www.petfinder.com/petdetail/' + pet.id,
+    :options => [],
     :photoUrl => 'https://www.wired.com/wp-content/uploads/2015/09/google-logo.jpg'}}
+    pets_output[0]['options'] = ['no-claws', 'fiv+']
+    pets_output[1]['options'] = ['no-claws']
+    pets_output[2]['options'] = ['fiv+']
   {:pets => pets_output}.to_json
 end
 
-get '/pets/:shelter_id' do
+get '/api/pets/:shelter_id' do
   options = {count:1000}
   pets = petfinder.shelter_pets(params['shelter_id'], options)
   pets_output = pets.map { |pet| {

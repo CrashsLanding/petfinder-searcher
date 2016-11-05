@@ -6,13 +6,16 @@
   "keywords": ["petfinder", "search"],
   "env": {
     "PETFINDER_API_KEY": {
-      "description": "Your Petfinder API key."
+      "description": "Your Petfinder API key.",
+      "required": "true"
     },
     "PETFINDER_API_SECRET": {
-      "description": "Your Petfinder API secret."
+      "description": "Your Petfinder API secret.",
+      "required": "true"
     },
     "PETFINDER_SHELTER_IDS": {
-      "description": "A comma seperated list (no spaces) of shelter ids from Petfinder."
+      "description": "A comma seperated list (no spaces) of shelter ids from Petfinder.",
+      "required": "true"
     }
-  },
+  }
 }

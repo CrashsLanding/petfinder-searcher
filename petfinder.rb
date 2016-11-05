@@ -30,6 +30,7 @@ get '/pets/all' do
     :size => pet.size,
     :breeds => pet.breeds,
     :petType => pet.animal,
+    :petfinderUrl => 'https://www.petfinder.com/petdetail/' + pet.id,
     :photoUrl => 'https://www.wired.com/wp-content/uploads/2015/09/google-logo.jpg'}}
   {:pets => pets_output}.to_json
 end

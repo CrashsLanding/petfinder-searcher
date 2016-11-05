@@ -12,6 +12,8 @@ PETFINDER_API_SECRET=SomeApiSecretHere
 PETFINDER_SHELTER_IDS=CommaSeperatedListOfIds
 ```
 
+We are using Postgres with pg_config, so you need to have that installed, and accessible from the path before going further. Talk to Kevin is this isn't fixed / easier to deal with, and you're still reading it.
+
 We are using Bundler, so before you go any further, make sure bundler is installed with
 
 ``` shell

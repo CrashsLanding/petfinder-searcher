@@ -1,0 +1,756 @@
+<?xml version="1.0"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+<xs:element name="petfinder">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element name="header" type="petfinderHeaderType"/>
+      <xs:element name="lastOffset" type="xs:string" minOccurs="0"/>
+      <xs:choice>
+        <xs:element name="auth" type="petfinderAuthData"/>
+        <xs:element name="pet" type="petfinderPetRecord"/>
+        <xs:element name="petIds" type="petfinderPetIdList"/>
+        <xs:element name="pets" type="petfinderPetRecordList"/>
+        <xs:element name="breeds" type="petfinderBreedList"/>
+        <xs:element name="shelter" type="petfinderShelterRecord"/>
+        <xs:element name="shelters" type="petfinderShelterRecordList"/>
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+</xs:element>
+
+<xs:complexType name="petfinderHeaderType">
+  <xs:sequence>
+    <xs:element name="version" type="xs:string"/>
+    <xs:element name="timestamp" type="xs:dateTime"/>
+    <xs:element name="status">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="code" type="xs:positiveInteger"/>
+          <xs:element name="message" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="petfinderAuthData">
+  <xs:sequence>
+    <xs:element name="key" type="xs:string"/>
+    <xs:element name="token" type="xs:string"/>
+    <xs:element name="expires" type="xs:positiveInteger"/>
+    <xs:element name="expiresString" type="xs:dateTime"/>
+  </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="petfinderBreedList">
+  <xs:sequence>
+    <xs:element name="breed" type="petfinderBreedType" minOccurs="1"
+                maxOccurs="unbounded"/>
+  </xs:sequence>
+  <xs:attribute name="animal" type="xs:string"/>
+</xs:complexType>
+
+<xs:complexType name="petfinderPetIdList">
+  <xs:sequence>
+    <xs:element name="id" type="petIdType" minOccurs="0" maxOccurs="unbounded"/>
+  </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="petfinderPetRecord">
+  <xs:sequence>
+    <xs:element name="id" type="petIdType"/>
+    <xs:element name="shelterId" type="shelterIdType"/>
+    <xs:element name="shelterPetId" type="xs:string" minOccurs="0"/>
+    <xs:element name="name" type="xs:string"/>
+    <xs:element name="animal" type="animalType"/>
+    <xs:element name="breeds" type="petfinderBreedList"/>
+    <xs:element name="mix">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="yes"/>
+          <xs:enumeration value="no"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    <xs:element name="age" type="petAgeType"/>
+    <xs:element name="sex" type="petGenderType"/>
+    <xs:element name="size" type="petSizeType"/>
+    <xs:element name="options">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="option" type="petOptionType" minOccurs="0"
+                      maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="description" type="xs:string"/>
+    <xs:element name="lastUpdate" type="xs:dateTime"/>
+    <xs:element name="status" type="petStatusType"/>
+    <xs:element name="media">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="photos" minOccurs="0">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="photo" type="petPhotoType" minOccurs="0"
+                      maxOccurs="15"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="contact" type="petContactType" minOccurs="0"/>
+  </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="petfinderPetRecordList">
+  <xs:sequence>
+    <xs:element name="pet" type="petfinderPetRecord" minOccurs="0"
+                maxOccurs="unbounded"/>
+  </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="petPhotoType">
+  <xs:simpleContent>
+    <xs:extension base="xs:string">
+      <xs:attribute name="id" type="xs:positiveInteger"/>
+      <xs:attribute name="size">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <!-- large (max 500x500) -->
+            <xs:enumeration value="x"/>
+            <!-- thumbnail (max 50 pixels high) -->
+            <xs:enumeration value="t"/>
+            <!-- petnote (max 300x250) -->
+            <xs:enumeration value="pn"/>
+            <!-- petnote thumbnail (max 60 pixels wide)-->
+            <xs:enumeration value="pnt"/>
+            <!-- featured pet module (max 95 pixels wide) -->
+            <xs:enumeration value="fpm"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:extension>
+  </xs:simpleContent>
+</xs:complexType>
+
+<xs:complexType name="petContactType">
+  <xs:sequence>
+    <xs:element name="name" type="xs:string"/>
+    <xs:element name="address1" type="xs:string"/>
+    <xs:element name="address2" type="xs:string"/>
+    <xs:element name="state" type="xs:string"/>
+    <xs:element name="zip" type="xs:string"/>
+    <xs:element name="phone" type="xs:string"/>
+    <xs:element name="fax" type="xs:string"/>
+    <xs:element name="email" type="xs:string"/>
+  </xs:sequence>
+</xs:complexType>
+
+<xs:simpleType name="petIdType">
+  <xs:restriction base="xs:positiveInteger"/>
+</xs:simpleType>
+
+<xs:simpleType name="shelterIdType">
+  <xs:restriction base="xs:string">
+    <xs:pattern value="[A-Z]{2}[0-9]+"/>
+  </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="petStatusType">
+  <xs:restriction base="xs:string">
+    <xs:enumeration value="A"/>
+    <xs:enumeration value="H"/>
+    <xs:enumeration value="P"/>
+    <xs:enumeration value="X"/>
+  </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="petGenderType">
+  <xs:restriction base="xs:string">
+    <xs:enumeration value="M"/>
+    <xs:enumeration value="F"/>
+  </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="petAgeType">
+  <xs:restriction base="xs:string">
+    <xs:enumeration value="Baby"/>
+    <xs:enumeration value="Young"/>
+    <xs:enumeration value="Adult"/>
+    <xs:enumeration value="Senior"/>
+  </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="petSizeType">
+  <xs:restriction base="xs:string">
+    <xs:enumeration value="S"/>
+    <xs:enumeration value="M"/>
+    <xs:enumeration value="L"/>
+    <xs:enumeration value="XL"/>
+  </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="animalType">
+  <xs:restriction base="xs:string">
+    <xs:enumeration value="Dog"/>
+    <xs:enumeration value="Cat"/>
+    <xs:enumeration value="Small&amp;Furry"/>
+    <xs:enumeration value="BarnYard"/>
+    <xs:enumeration value="Bird"/>
+    <xs:enumeration value="Horse"/>
+    <xs:enumeration value="Pig"/>
+    <xs:enumeration value="Rabbit"/>
+    <xs:enumeration value="Reptile"/>
+  </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="petOptionType">
+  <xs:restriction base="xs:string">
+    <xs:enumeration value="specialNeeds"/>
+    <xs:enumeration value="noDogs"/>
+    <xs:enumeration value="noCats"/>
+    <xs:enumeration value="noKids"/>
+    <xs:enumeration value="noClaws"/>
+    <xs:enumeration value="hasShots"/>
+    <xs:enumeration value="housebroken"/>
+    <xs:enumeration value="altered"/>
+  </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="petfinderBreedType">
+  <xs:restriction base="xs:string">
+
+    <!-- Rare cases when breed is not known or is omitted -->
+    <xs:enumeration value="Unknown"/>
+
+    <!-- Dog Breeds -->
+    <xs:enumeration value="Affenpinscher"/>
+    <xs:enumeration value="Afghan Hound"/>
+    <xs:enumeration value="Airedale Terrier"/>
+    <xs:enumeration value="Akbash"/>
+    <xs:enumeration value="Akita"/>
+    <xs:enumeration value="Alaskan Malamute"/>
+    <xs:enumeration value="American Bulldog"/>
+    <xs:enumeration value="American Eskimo Dog"/>
+    <xs:enumeration value="American Hairless Terrier"/>
+    <xs:enumeration value="American Staffordshire Terrier"/>
+    <xs:enumeration value="American Water Spaniel"/>
+    <xs:enumeration value="Anatolian Shepherd"/>
+    <xs:enumeration value="Appenzell Mountain Dog"/>
+    <xs:enumeration value="Australian Cattle Dog/Blue Heeler"/>
+    <xs:enumeration value="Australian Kelpie"/>
+    <xs:enumeration value="Australian Shepherd"/>
+    <xs:enumeration value="Australian Terrier"/>
+    <xs:enumeration value="Basenji"/>
+    <xs:enumeration value="Basset Hound"/>
+    <xs:enumeration value="Beagle"/>
+    <xs:enumeration value="Bearded Collie"/>
+    <xs:enumeration value="Beauceron"/>
+    <xs:enumeration value="Bedlington Terrier"/>
+    <xs:enumeration value="Belgian Shepherd Dog Sheepdog"/>
+    <xs:enumeration value="Belgian Shepherd Laekenois"/>
+    <xs:enumeration value="Belgian Shepherd Malinois"/>
+    <xs:enumeration value="Belgian Shepherd Tervuren"/>
+    <xs:enumeration value="Bernese Mountain Dog"/>
+    <xs:enumeration value="Bichon Frise"/>
+    <xs:enumeration value="Black and Tan Coonhound"/>
+    <xs:enumeration value="Black Labrador Retriever"/>
+    <xs:enumeration value="Black Mouth Cur"/>
+    <xs:enumeration value="Black Russian Terrier"/>
+    <xs:enumeration value="Bloodhound"/>
+    <xs:enumeration value="Blue Lacy"/>
+    <xs:enumeration value="Bluetick Coonhound"/>
+    <xs:enumeration value="Boerboel"/>
+    <xs:enumeration value="Bolognese"/>
+    <xs:enumeration value="Border Collie"/>
+    <xs:enumeration value="Border Terrier"/>
+    <xs:enumeration value="Borzoi"/>
+    <xs:enumeration value="Boston Terrier"/>
+    <xs:enumeration value="Bouvier des Flanders"/>
+    <xs:enumeration value="Boxer"/>
+    <xs:enumeration value="Boykin Spaniel"/>
+    <xs:enumeration value="Briard"/>
+    <xs:enumeration value="Brittany Spaniel"/>
+    <xs:enumeration value="Brussels Griffon"/>
+    <xs:enumeration value="Bull Terrier"/>
+    <xs:enumeration value="Bullmastiff"/>
+    <xs:enumeration value="Cairn Terrier"/>
+    <xs:enumeration value="Canaan Dog"/>
+    <xs:enumeration value="Cane Corso Mastiff"/>
+    <xs:enumeration value="Carolina Dog"/>
+    <xs:enumeration value="Catahoula Leopard Dog"/>
+    <xs:enumeration value="Cattle Dog"/>
+    <xs:enumeration value="Caucasian Sheepdog (Caucasian Ovtcharka)"/>
+    <xs:enumeration value="Cavalier King Charles Spaniel"/>
+    <xs:enumeration value="Chesapeake Bay Retriever"/>
+    <xs:enumeration value="Chihuahua"/>
+    <xs:enumeration value="Chinese Crested Dog"/>
+    <xs:enumeration value="Chinese Foo Dog"/>
+    <xs:enumeration value="Chinook"/>
+    <xs:enumeration value="Chocolate Labrador Retriever"/>
+    <xs:enumeration value="Chow Chow"/>
+    <xs:enumeration value="Cirneco dell'Etna"/>
+    <xs:enumeration value="Clumber Spaniel"/>
+    <xs:enumeration value="Cockapoo"/>
+    <xs:enumeration value="Cocker Spaniel"/>
+    <xs:enumeration value="Collie"/>
+    <xs:enumeration value="Coonhound"/>
+    <xs:enumeration value="Corgi"/>
+    <xs:enumeration value="Coton de Tulear"/>
+    <xs:enumeration value="Curly-Coated Retriever"/>
+    <xs:enumeration value="Dachshund"/>
+    <xs:enumeration value="Dalmatian"/>
+    <xs:enumeration value="Dandi Dinmont Terrier"/>
+    <xs:enumeration value="Doberman Pinscher"/>
+    <xs:enumeration value="Dogo Argentino"/>
+    <xs:enumeration value="Dogue de Bordeaux"/>
+    <xs:enumeration value="Dutch Shepherd"/>
+    <xs:enumeration value="English Bulldog"/>
+    <xs:enumeration value="English Cocker Spaniel"/>
+    <xs:enumeration value="English Coonhound"/>
+    <xs:enumeration value="English Pointer"/>
+    <xs:enumeration value="English Setter"/>
+    <xs:enumeration value="English Shepherd"/>
+    <xs:enumeration value="English Springer Spaniel"/>
+    <xs:enumeration value="English Toy Spaniel"/>
+    <xs:enumeration value="Entlebucher"/>
+    <xs:enumeration value="Eskimo Dog"/>
+    <xs:enumeration value="Feist"/>
+    <xs:enumeration value="Field Spaniel"/>
+    <xs:enumeration value="Fila Brasileiro"/>
+    <xs:enumeration value="Finnish Lapphund"/>
+    <xs:enumeration value="Finnish Spitz"/>
+    <xs:enumeration value="Flat-coated Retriever"/>
+    <xs:enumeration value="Fox Terrier"/>
+    <xs:enumeration value="Foxhound"/>
+    <xs:enumeration value="French Bulldog"/>
+    <xs:enumeration value="Galgo Spanish Greyhound"/>
+    <xs:enumeration value="German Pinscher"/>
+    <xs:enumeration value="German Shepherd Dog"/>
+    <xs:enumeration value="German Shorthaired Pointer"/>
+    <xs:enumeration value="German Spitz"/>
+    <xs:enumeration value="German Wirehaired Pointer"/>
+    <xs:enumeration value="Giant Schnauzer"/>
+    <xs:enumeration value="Glen of Imaal Terrier"/>
+    <xs:enumeration value="Golden Retriever"/>
+    <xs:enumeration value="Gordon Setter"/>
+    <xs:enumeration value="Great Dane"/>
+    <xs:enumeration value="Great Pyrenees"/>
+    <xs:enumeration value="Greater Swiss Mountain Dog"/>
+    <xs:enumeration value="Greyhound"/>
+    <xs:enumeration value="Harrier"/>
+    <xs:enumeration value="Havanese"/>
+    <xs:enumeration value="Hound"/>
+    <xs:enumeration value="Hovawart"/>
+    <xs:enumeration value="Husky"/>
+    <xs:enumeration value="Ibizan Hound"/>
+    <xs:enumeration value="Illyrian Sheepdog"/>
+    <xs:enumeration value="Irish Setter"/>
+    <xs:enumeration value="Irish Terrier"/>
+    <xs:enumeration value="Irish Water Spaniel"/>
+    <xs:enumeration value="Irish Wolfhound"/>
+    <xs:enumeration value="Italian Greyhound"/>
+    <xs:enumeration value="Italian Spinone"/>
+    <xs:enumeration value="Jack Russell Terrier"/>
+    <xs:enumeration value="Jack Russell Terrier (Parson Russell Terrier)"/>
+    <xs:enumeration value="Japanese Chin"/>
+    <xs:enumeration value="Jindo"/>
+    <xs:enumeration value="Kai Dog"/>
+    <xs:enumeration value="Karelian Bear Dog"/>
+    <xs:enumeration value="Keeshond"/>
+    <xs:enumeration value="Kerry Blue Terrier"/>
+    <xs:enumeration value="Kishu"/>
+    <xs:enumeration value="Klee Kai"/>
+    <xs:enumeration value="Komondor"/>
+    <xs:enumeration value="Kuvasz"/>
+    <xs:enumeration value="Kyi Leo"/>
+    <xs:enumeration value="Labrador Retriever"/>
+    <xs:enumeration value="Lakeland Terrier"/>
+    <xs:enumeration value="Lancashire Heeler"/>
+    <xs:enumeration value="Leonberger"/>
+    <xs:enumeration value="Lhasa Apso"/>
+    <xs:enumeration value="Lowchen"/>
+    <xs:enumeration value="Maltese"/>
+    <xs:enumeration value="Manchester Terrier"/>
+    <xs:enumeration value="Maremma Sheepdog"/>
+    <xs:enumeration value="Mastiff"/>
+    <xs:enumeration value="McNab"/>
+    <xs:enumeration value="Miniature Pinscher"/>
+    <xs:enumeration value="Mountain Cur"/>
+    <xs:enumeration value="Mountain Dog"/>
+    <xs:enumeration value="Munsterlander"/>
+    <xs:enumeration value="Neapolitan Mastiff"/>
+    <xs:enumeration value="New Guinea Singing Dog"/>
+    <xs:enumeration value="Newfoundland Dog"/>
+    <xs:enumeration value="Norfolk Terrier"/>
+    <xs:enumeration value="Norwegian Buhund"/>
+    <xs:enumeration value="Norwegian Elkhound"/>
+    <xs:enumeration value="Norwegian Lundehund"/>
+    <xs:enumeration value="Norwich Terrier"/>
+    <xs:enumeration value="Nova Scotia Duck-Tolling Retriever"/>
+    <xs:enumeration value="Old English Sheepdog"/>
+    <xs:enumeration value="Otterhound"/>
+    <xs:enumeration value="Papillon"/>
+    <xs:enumeration value="Patterdale Terrier (Fell Terrier)"/>
+    <xs:enumeration value="Pekingese"/>
+    <xs:enumeration value="Peruvian Inca Orchid"/>
+    <xs:enumeration value="Petit Basset Griffon Vendeen"/>
+    <xs:enumeration value="Pharaoh Hound"/>
+    <xs:enumeration value="Pit Bull Terrier"/>
+    <xs:enumeration value="Plott Hound"/>
+    <xs:enumeration value="Podengo Portugueso"/>
+    <xs:enumeration value="Pointer"/>
+    <xs:enumeration value="Polish Lowland Sheepdog"/>
+    <xs:enumeration value="Pomeranian"/>
+    <xs:enumeration value="Poodle"/>
+    <xs:enumeration value="Portuguese Water Dog"/>
+    <xs:enumeration value="Presa Canario"/>
+    <xs:enumeration value="Pug"/>
+    <xs:enumeration value="Puli"/>
+    <xs:enumeration value="Pumi"/>
+    <xs:enumeration value="Rat Terrier"/>
+    <xs:enumeration value="Redbone Coonhound"/>
+    <xs:enumeration value="Retriever"/>
+    <xs:enumeration value="Rhodesian Ridgeback"/>
+    <xs:enumeration value="Rottweiler"/>
+    <xs:enumeration value="Saint Bernard St. Bernard"/>
+    <xs:enumeration value="Saluki"/>
+    <xs:enumeration value="Samoyed"/>
+    <xs:enumeration value="Sarplaninac"/>
+    <xs:enumeration value="Schipperke"/>
+    <xs:enumeration value="Schnauzer"/>
+    <xs:enumeration value="Scottish Deerhound"/>
+    <xs:enumeration value="Scottish Terrier Scottie"/>
+    <xs:enumeration value="Sealyham Terrier"/>
+    <xs:enumeration value="Setter"/>
+    <xs:enumeration value="Shar Pei"/>
+    <xs:enumeration value="Sheep Dog"/>
+    <xs:enumeration value="Shepherd"/>
+    <xs:enumeration value="Shetland Sheepdog Sheltie"/>
+    <xs:enumeration value="Shiba Inu"/>
+    <xs:enumeration value="Shih Tzu"/>
+    <xs:enumeration value="Siberian Husky"/>
+    <xs:enumeration value="Silky Terrier"/>
+    <xs:enumeration value="Skye Terrier"/>
+    <xs:enumeration value="Sloughi"/>
+    <xs:enumeration value="Smooth Fox Terrier"/>
+    <xs:enumeration value="South Russian Ovtcharka"/>
+    <xs:enumeration value="Spaniel"/>
+    <xs:enumeration value="Spitz"/>
+    <xs:enumeration value="Staffordshire Bull Terrier"/>
+    <xs:enumeration value="Standard Poodle"/>
+    <xs:enumeration value="Sussex Spaniel"/>
+    <xs:enumeration value="Swedish Vallhund"/>
+    <xs:enumeration value="Terrier"/>
+    <xs:enumeration value="Thai Ridgeback"/>
+    <xs:enumeration value="Tibetan Mastiff"/>
+    <xs:enumeration value="Tibetan Spaniel"/>
+    <xs:enumeration value="Tibetan Terrier"/>
+    <xs:enumeration value="Tosa Inu"/>
+    <xs:enumeration value="Toy Fox Terrier"/>
+    <xs:enumeration value="Treeing Walker Coonhound"/>
+    <xs:enumeration value="Vizsla"/>
+    <xs:enumeration value="Weimaraner"/>
+    <xs:enumeration value="Welsh Corgi"/>
+    <xs:enumeration value="Welsh Springer Spaniel"/>
+    <xs:enumeration value="Welsh Terrier"/>
+    <xs:enumeration value="West Highland White Terrier Westie"/>
+    <xs:enumeration value="Wheaten Terrier"/>
+    <xs:enumeration value="Whippet"/>
+    <xs:enumeration value="White German Shepherd"/>
+    <xs:enumeration value="Wire Fox Terrier"/>
+    <xs:enumeration value="Wire-haired Pointing Griffon"/>
+    <xs:enumeration value="Wirehaired Terrier"/>
+    <xs:enumeration value="Xoloitzcuintle/Mexican Hairless"/>
+    <xs:enumeration value="Yellow Labrador Retriever"/>
+    <xs:enumeration value="Yorkshire Terrier Yorkie"/>
+
+    <!-- Cat Breeds -->
+    <xs:enumeration value="Abyssinian"/>
+    <xs:enumeration value="American Curl"/>
+    <xs:enumeration value="American Shorthair"/>
+    <xs:enumeration value="American Wirehair"/>
+    <xs:enumeration value="Applehead Siamese"/>
+    <xs:enumeration value="Balinese"/>
+    <xs:enumeration value="Bengal"/>
+    <xs:enumeration value="Birman"/>
+    <xs:enumeration value="Bobtail"/>
+    <xs:enumeration value="Bombay"/>
+    <xs:enumeration value="British Shorthair"/>
+    <xs:enumeration value="Burmese"/>
+    <xs:enumeration value="Burmilla"/>
+    <xs:enumeration value="Calico"/>
+    <xs:enumeration value="Canadian Hairless"/>
+    <xs:enumeration value="Chartreux"/>
+    <xs:enumeration value="Chausie"/>
+    <xs:enumeration value="Chinchilla"/>
+    <xs:enumeration value="Cornish Rex"/>
+    <xs:enumeration value="Cymric"/>
+    <xs:enumeration value="Devon Rex"/>
+    <xs:enumeration value="Dilute Calico"/>
+    <xs:enumeration value="Dilute Tortoiseshell"/>
+    <xs:enumeration value="Domestic Long Hair"/>
+    <xs:enumeration value="Domestic Long Hair - brown"/>
+    <xs:enumeration value="Domestic Long Hair - buff"/>
+    <xs:enumeration value="Domestic Long Hair - buff and white"/>
+    <xs:enumeration value="Domestic Long Hair - gray and white"/>
+    <xs:enumeration value="Domestic Long Hair - orange"/>
+    <xs:enumeration value="Domestic Long Hair - orange and white"/>
+    <xs:enumeration value="Domestic Long Hair-black"/>
+    <xs:enumeration value="Domestic Long Hair-black and white"/>
+    <xs:enumeration value="Domestic Long Hair-gray"/>
+    <xs:enumeration value="Domestic Long Hair-white"/>
+    <xs:enumeration value="Domestic Medium Hair"/>
+    <xs:enumeration value="Domestic Medium Hair - brown"/>
+    <xs:enumeration value="Domestic Medium Hair - buff"/>
+    <xs:enumeration value="Domestic Medium Hair - buff and white"/>
+    <xs:enumeration value="Domestic Medium Hair - gray and white"/>
+    <xs:enumeration value="Domestic Medium Hair - orange and white"/>
+    <xs:enumeration value="Domestic Medium Hair-black"/>
+    <xs:enumeration value="Domestic Medium Hair-black and white"/>
+    <xs:enumeration value="Domestic Medium Hair-gray"/>
+    <xs:enumeration value="Domestic Medium Hair-orange"/>
+    <xs:enumeration value="Domestic Medium Hair-white"/>
+    <xs:enumeration value="Domestic Short Hair"/>
+    <xs:enumeration value="Domestic Short Hair - brown"/>
+    <xs:enumeration value="Domestic Short Hair - buff"/>
+    <xs:enumeration value="Domestic Short Hair - buff and white"/>
+    <xs:enumeration value="Domestic Short Hair - gray and white"/>
+    <xs:enumeration value="Domestic Short Hair - orange and white"/>
+    <xs:enumeration value="Domestic Short Hair-black"/>
+    <xs:enumeration value="Domestic Short Hair-black and white"/>
+    <xs:enumeration value="Domestic Short Hair-gray"/>
+    <xs:enumeration value="Domestic Short Hair-mitted"/>
+    <xs:enumeration value="Domestic Short Hair-orange"/>
+    <xs:enumeration value="Domestic Short Hair-white"/>
+    <xs:enumeration value="Egyptian Mau"/>
+    <xs:enumeration value="Exotic Shorthair"/>
+    <xs:enumeration value="Extra-Toes Cat (Hemingway Polydactyl)"/>
+    <xs:enumeration value="Havana"/>
+    <xs:enumeration value="Himalayan"/>
+    <xs:enumeration value="Japanese Bobtail"/>
+    <xs:enumeration value="Javanese"/>
+    <xs:enumeration value="Korat"/>
+    <xs:enumeration value="LaPerm"/>
+    <xs:enumeration value="Maine Coon"/>
+    <xs:enumeration value="Manx"/>
+    <xs:enumeration value="Munchkin"/>
+    <xs:enumeration value="Nebelung"/>
+    <xs:enumeration value="Norwegian Forest Cat"/>
+    <xs:enumeration value="Ocicat"/>
+    <xs:enumeration value="Oriental Long Hair"/>
+    <xs:enumeration value="Oriental Short Hair"/>
+    <xs:enumeration value="Oriental Tabby"/>
+    <xs:enumeration value="Persian"/>
+    <xs:enumeration value="Pixie-Bob"/>
+    <xs:enumeration value="Ragamuffin"/>
+    <xs:enumeration value="Ragdoll"/>
+    <xs:enumeration value="Russian Blue"/>
+    <xs:enumeration value="Scottish Fold"/>
+    <xs:enumeration value="Selkirk Rex"/>
+    <xs:enumeration value="Siamese"/>
+    <xs:enumeration value="Siberian"/>
+    <xs:enumeration value="Silver"/>
+    <xs:enumeration value="Singapura"/>
+    <xs:enumeration value="Snowshoe"/>
+    <xs:enumeration value="Somali"/>
+    <xs:enumeration value="Sphynx (hairless cat)"/>
+    <xs:enumeration value="Tabby"/>
+    <xs:enumeration value="Tabby - black"/>
+    <xs:enumeration value="Tabby - Brown"/>
+    <xs:enumeration value="Tabby - buff"/>
+    <xs:enumeration value="Tabby - Grey"/>
+    <xs:enumeration value="Tabby - Orange"/>
+    <xs:enumeration value="Tabby - white"/>
+    <xs:enumeration value="Tiger"/>
+    <xs:enumeration value="Tonkinese"/>
+    <xs:enumeration value="Torbie"/>
+    <xs:enumeration value="Tortoiseshell"/>
+    <xs:enumeration value="Turkish Angora"/>
+    <xs:enumeration value="Turkish Van"/>
+    <xs:enumeration value="Tuxedo"/>
+
+    <!-- Pig Breeds -->
+    <xs:enumeration value="Pot Bellied"/>
+    <xs:enumeration value="Vietnamese Pot Bellied"/>
+
+    <!-- Horse Breeds -->
+    <xs:enumeration value="Appaloosa"/>
+    <xs:enumeration value="Arabian"/>
+    <xs:enumeration value="Belgian"/>
+    <xs:enumeration value="Clydesdale"/>
+    <xs:enumeration value="Curly Horse"/>
+    <xs:enumeration value="Donkey/Mule"/>
+    <xs:enumeration value="Draft"/>
+    <xs:enumeration value="Gaited"/>
+    <xs:enumeration value="Grade"/>
+    <xs:enumeration value="Lipizzan"/>
+    <xs:enumeration value="Miniature Horse"/>
+    <xs:enumeration value="Missouri Foxtrotter"/>
+    <xs:enumeration value="Morgan"/>
+    <xs:enumeration value="Mustang"/>
+    <xs:enumeration value="Paint/Pinto"/>
+    <xs:enumeration value="Palomino"/>
+    <xs:enumeration value="Paso Fino"/>
+    <xs:enumeration value="Percheron"/>
+    <xs:enumeration value="Peruvian Paso"/>
+    <xs:enumeration value="Pony"/>
+    <xs:enumeration value="Quarterhorse"/>
+    <xs:enumeration value="Saddlebred"/>
+    <xs:enumeration value="Shetland Pony"/>
+    <xs:enumeration value="Standardbred"/>
+    <xs:enumeration value="Tennessee Walker"/>
+    <xs:enumeration value="Thoroughbred"/>
+    <xs:enumeration value="Warmblood"/>
+
+    <!-- Small & Furry Breeds -->
+    <xs:enumeration value="Chinchilla"/>
+    <xs:enumeration value="Degu"/>
+    <xs:enumeration value="Ferret"/>
+    <xs:enumeration value="Gerbil"/>
+    <xs:enumeration value="Guinea Pig"/>
+    <xs:enumeration value="Hamster"/>
+    <xs:enumeration value="Hedgehog"/>
+    <xs:enumeration value="Mouse"/>
+    <xs:enumeration value="Prairie Dog"/>
+    <xs:enumeration value="Rat"/>
+    <xs:enumeration value="Skunk"/>
+    <xs:enumeration value="Sugar Glider"/>
+    <xs:enumeration value="Tarantula"/>
+
+    <!-- Bird Breeds -->
+    <xs:enumeration value="African Grey"/>
+    <xs:enumeration value="Amazon"/>
+    <xs:enumeration value="Brotogeris"/>
+    <xs:enumeration value="Budgie/Budgerigar"/>
+    <xs:enumeration value="Button Quail"/>
+    <xs:enumeration value="Caique"/>
+    <xs:enumeration value="Canary"/>
+    <xs:enumeration value="Chicken"/>
+    <xs:enumeration value="Cockatiel"/>
+    <xs:enumeration value="Cockatoo"/>
+    <xs:enumeration value="Conure"/>
+    <xs:enumeration value="Dove"/>
+    <xs:enumeration value="Duck"/>
+    <xs:enumeration value="Eclectus"/>
+    <xs:enumeration value="Emu"/>
+    <xs:enumeration value="Finch"/>
+    <xs:enumeration value="Goose"/>
+    <xs:enumeration value="Guinea fowl"/>
+    <xs:enumeration value="Kakariki"/>
+    <xs:enumeration value="Lory/Lorikeet"/>
+    <xs:enumeration value="Lovebird"/>
+    <xs:enumeration value="Macaw"/>
+    <xs:enumeration value="Mynah"/>
+    <xs:enumeration value="Ostrich"/>
+    <xs:enumeration value="Parakeet (Other)"/>
+    <xs:enumeration value="Parrot (Other)"/>
+    <xs:enumeration value="Parrotlet"/>
+    <xs:enumeration value="Peacock/Pea fowl"/>
+    <xs:enumeration value="Pheasant"/>
+    <xs:enumeration value="Pigeon"/>
+    <xs:enumeration value="Pionus"/>
+    <xs:enumeration value="Poicephalus/Senegal"/>
+    <xs:enumeration value="Quail"/>
+    <xs:enumeration value="Quaker Parakeet"/>
+    <xs:enumeration value="Rhea"/>
+    <xs:enumeration value="Ringneck/Psittacula"/>
+    <xs:enumeration value="Rosella"/>
+    <xs:enumeration value="Softbill (Other)"/>
+
+    <!-- BarnYard Breeds -->
+    <xs:enumeration value="Alpaca"/>
+    <xs:enumeration value="Cow"/>
+    <xs:enumeration value="Goat"/>
+    <xs:enumeration value="Llama"/>
+    <xs:enumeration value="Pig (Farm)"/>
+    <xs:enumeration value="Sheep"/>
+
+    <!-- Rabbit Breeds -->
+    <xs:enumeration value="American"/>
+    <xs:enumeration value="American Fuzzy Lop"/>
+    <xs:enumeration value="American Sable"/>
+    <xs:enumeration value="Angora Rabbit"/>
+    <xs:enumeration value="Belgian Hare"/>
+    <xs:enumeration value="Beveren"/>
+    <xs:enumeration value="Britannia Petite"/>
+    <xs:enumeration value="Bunny Rabbit"/>
+    <xs:enumeration value="Californian"/>
+    <xs:enumeration value="Champagne D'Argent"/>
+    <xs:enumeration value="Checkered Giant"/>
+    <xs:enumeration value="Chinchilla"/>
+    <xs:enumeration value="Cinnamon"/>
+    <xs:enumeration value="Creme D'Argent"/>
+    <xs:enumeration value="Dutch"/>
+    <xs:enumeration value="Dwarf"/>
+    <xs:enumeration value="Dwarf Eared"/>
+    <xs:enumeration value="English Lop"/>
+    <xs:enumeration value="English Spot"/>
+    <xs:enumeration value="Flemish Giant"/>
+    <xs:enumeration value="Florida White"/>
+    <xs:enumeration value="French-Lop"/>
+    <xs:enumeration value="Harlequin"/>
+    <xs:enumeration value="Havana"/>
+    <xs:enumeration value="Himalayan"/>
+    <xs:enumeration value="Holland Lop"/>
+    <xs:enumeration value="Hotot"/>
+    <xs:enumeration value="Jersey Wooly"/>
+    <xs:enumeration value="Lilac"/>
+    <xs:enumeration value="Lionhead"/>
+    <xs:enumeration value="Lop Eared"/>
+    <xs:enumeration value="Mini Rex"/>
+    <xs:enumeration value="Mini-Lop"/>
+    <xs:enumeration value="Netherland Dwarf"/>
+    <xs:enumeration value="New Zealand"/>
+    <xs:enumeration value="Palomino"/>
+    <xs:enumeration value="Polish"/>
+    <xs:enumeration value="Rex"/>
+    <xs:enumeration value="Rhinelander"/>
+    <xs:enumeration value="Satin"/>
+    <xs:enumeration value="Silver"/>
+    <xs:enumeration value="Silver Fox"/>
+    <xs:enumeration value="Silver Marten"/>
+    <xs:enumeration value="Tan"/>
+
+    <!-- Reptile Breeds -->
+    <xs:enumeration value="Fish"/>
+    <xs:enumeration value="Frog"/>
+    <xs:enumeration value="Gecko"/>
+    <xs:enumeration value="Hermit Crab"/>
+    <xs:enumeration value="Iguana"/>
+    <xs:enumeration value="Lizard"/>
+    <xs:enumeration value="Snake"/>
+    <xs:enumeration value="Turtle"/>
+  </xs:restriction>
+</xs:simpleType>
+
+<xs:complexType name="petfinderShelterRecord">
+  <xs:sequence>
+    <xs:element name="id" type="shelterIdType"/>
+    <xs:element name="name" type="xs:string"/>
+    <xs:element name="address1" type="xs:string"/>
+    <xs:element name="address2" type="xs:string"/>
+    <xs:element name="city" type="xs:string"/>
+    <xs:element name="state" type="xs:string"/>
+    <xs:element name="zip" type="xs:string"/>
+    <xs:element name="country" type="xs:string"/>
+    <xs:element name="latitude" type="xs:decimal"/>
+    <xs:element name="longitude" type="xs:decimal"/>
+    <xs:element name="phone" type="xs:string"/>
+    <xs:element name="fax" type="xs:string"/>
+    <xs:element name="email" type="xs:string"/>
+  </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="petfinderShelterRecordList">
+  <xs:sequence>
+    <xs:element name="shelter" type="petfinderShelterRecord" minOccurs="0"
+                maxOccurs="unbounded"/>
+  </xs:sequence>
+</xs:complexType>
+
+</xs:schema>

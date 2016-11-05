@@ -1,5 +1,7 @@
 Petfinder Server
 
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/CrashsLanding/petfinder-server)
+
 ### Setup
 
 First, make sure you have your API key and API secret in a file called `.env` in the root of the project.

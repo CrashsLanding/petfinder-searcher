@@ -1,11 +1,15 @@
-require 'dotenv'
-Dotenv.load
-
 require 'json'
 require 'petfinder'
 require 'rufus-scheduler'
 require 'sinatra'
 require 'sequel'
+
+settings = Sinatra::Application.settings
+
+if settings.development?
+  require 'dotenv'
+  Dotenv.load
+end
 
 api_key = ENV['PETFINDER_API_KEY']
 api_secret = ENV['PETFINDER_API_SECRET']

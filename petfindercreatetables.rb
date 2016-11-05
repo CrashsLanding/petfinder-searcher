@@ -114,7 +114,7 @@ CREATE TABLE PetsStaging (
 	,AgeTypeName varchar(10)
 	,Gender char(1)
 	,SizeTypeName varchar(2)
-	,Descrition text
+	,Description text
 	,LastUpdate timestamp
 	,PetStatusType char(1)
 );
@@ -335,6 +335,253 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION ProcessStaging()
+RETURNS text as $$
+BEGIN
+	CREATE TEMPORARY TABLE PetsToDelete(
+		PetPK int
+	);
+	--Pets Logic
+	--Start delete pets
+	INSERT INTO PetsToDelete (PetPK)
+	SELECT p.PetPK
+	FROM Pets p
+	WHERE NOT EXISTS (
+	 SELECT 1
+	 FROM PetsStaging ps
+	 WHERE ps.PetFinderID = p.PetFinderID
+	);
+
+	DELETE
+	FROM PetBreeds
+	WHERE PetPK IN (
+		SELECT PetPK
+		FROM PetsToDelete
+	);
+
+	DELETE
+	FROM PetPhotos
+	WHERE PetPK IN (
+		SELECT PetPK
+		FROM PetsToDelete
+	);
+
+	DELETE
+	FROM PetContacts
+	WHERE PetPK IN (
+		SELECT PetPK
+		FROM PetsToDelete
+	);
+
+	DELETE
+	FROM PetOptions
+	WHERE PetPK IN (
+		SELECT PetPK
+		FROM PetsToDelete
+	);
+
+	DELETE
+	FROM Pets
+	WHERE PetPK IN (
+		SELECT PetPK
+		FROM PetsToDelete
+	);
+	--End Delete Pets
+
+	--Update Pets
+	UPDATE Pets
+	SET ShelterPK = ps2.ShelterPK
+		,ShelterPetID = ps2.ShelterPetID
+		,Name = ps2.Name
+		,AnimalTypePK = ps2.AnimalTypePK
+		,Gender = ps2.Gender
+		,SizeTypePK = ps2.SizeTypePK
+		,Description = ps2.Description
+		,LastUpdate = ps2.LastUpdate
+		,PetStatusType = ps2.PetStatusType
+		,AgeTypePK = ps2.AgeTypePK
+	FROM Pets p
+	JOIN (
+		SELECT ps.PetFinderID
+			,s.ShelterPK
+			,ps.ShelterPetID
+			,ps.Name
+			,ant.AnimalTypePK
+			,ps.Gender
+			,st.SizeTypePK
+			,ps.Description
+			,ps.LastUpdate
+			,ps.PetStatusType
+			,agt.AgeTypePK
+		FROM PetsStaging ps
+		JOIN Shelters s ON ps.ShelterID = s.ShelterID
+		JOIN AnimalTypes ant ON ant.AnimalTypeName = ps.AnimalTypeName
+		JOIN SizeTypes st ON st.SizeTypeName = ps.SizeTypeName
+		JOIN AgeTypes agt ON agt.AgeTypeName = ps.AgeTypeName
+	) ps2 ON ps2.PetFinderID = p.PetFinderID;
+
+	--Insert Pets
+	INSERT INTO Pets (
+		PetFinderID
+		,ShelterPK
+		,ShelterPetID
+		,Name
+		,AnimalTypePK
+		,Gender
+		,SizeTypePK
+		,Description
+		,LastUpdate
+		,PetStatusType
+		,AgeTypePK
+	)
+	SELECT ps.PetFinderID
+		,s.ShelterPK
+		,ps.ShelterPetID
+		,ps.Name
+		,ant.AnimalTypePK
+		,ps.Gender
+		,st.SizeTypePK
+		,ps.Description
+		,ps.LastUpdate
+		,ps.PetStatusType
+		,agt.AgeTypePK
+	FROM PetsStaging ps
+	JOIN Shelters s ON ps.ShelterID = s.ShelterID
+	JOIN AnimalTypes ant ON ant.AnimalTypeName = ps.AnimalTypeName
+	JOIN SizeTypes st ON st.SizeTypeName = ps.SizeTypeName
+	JOIN AgeTypes agt ON agt.AgeTypeName = ps.AgeTypeName
+	WHERE NOT EXISTS (
+		SELECT 1
+		FROM Pets p
+		WHERE ps.PetFinderID = p.PetFinderID
+		);
+	--End Pets
+
+	DELETE FROM PetBreeds pb
+	WHERE NOT EXISTS (
+		SELECT 1
+		FROM PetBreedsStaging pbs
+		JOIN BreedTypes bt ON pbs.BreedName = bt.BreedName
+		JOIN Pets p ON p.PetFinderID = pbs.PetFinderID
+		WHERE bt.BreedTypePK = pb.BreedTypePK
+		AND p.PetKey = pb.PetKey
+	);
+
+	INSERT INTO PetBreeds (PetPK, BreedTypePK)
+	SELECT p.PetPK
+		,bt.BreedTypePK
+	FROM PetBreedsStaging pbs
+	JOIN BreedTypes bt ON pbs.BreedName = bt.BreedName
+	JOIN Pets p ON p.PetFinderID = pbs.PetFinderID
+	WHERE NOT EXISTS (
+		SELECT 1
+		FROM PetBreeds pb
+		WHERE bt.BreedTypePK = pb.BreedTypePK
+		AND p.PetKey = pb.PetKey
+	);
+
+	UPDATE PetContacts
+	SET ContactName = pcs.ContactName
+		,Address1 = pcs.Address1
+		,Address2 = pcs.Address2
+		,City = pcs.City
+		,State = pcs.State
+		,Zip = pcs.Zip
+		,Phone = pcs.Phone
+		,Fax = pcs.Fax
+		,Email = pcs.Email
+	FROM PetContacts pc
+	JOIN Pets p ON p.PetKey = pc.PetKey
+	JOIN PetContactsStaging pcs ON pcs.PetFinderID = p.PetFinderID
+	;
+
+	INSERT INTO PetContacts (
+		PetPK
+		,ContactName
+		,Address1
+		,Address2
+		,City
+		,State
+		,Zip
+		,Phone
+		,Fax
+		,Email
+	)
+	SELECT p.PetPK
+		,pcs.ContactName
+		,pcs.Address1
+		,pcs.Address2
+		,pcs.City
+		,pcs.State
+		,pcs.Zip
+		,pcs.Phone
+		,pcs.Fax
+		,pcs.Email
+	FROM Pets p
+	JOIN PetContactsStaging pcs ON pcs.PetFinderID = p.PetFinderID
+	WHERE NOT EXISTS (
+		SELECT 1
+		FROM PetContacts pc
+		WHERE pc.PetFinderID = p.PetFinderID
+	);
+
+	DELETE FROM PetOptions po
+	WHERE NOT EXISTS (
+		SELECT 1
+		FROM PetOptionsStaging pos
+		JOIN OptionTypes ot ON pos.OptionTypeName = ot.OptionTypeName
+		JOIN Pets p ON p.PetFinderID = pos.PetFinderID
+		WHERE ot.OptionTypePK = po.OptionTypePK
+		AND p.PetKey = po.PetKey
+	);
+
+	INSERT INTO PetOptions (PetPK, OptionTypePK)
+	SELECT p.PetPK
+		,ot.OptionTypePK
+	FROM PetOptionsStaging pbs
+	JOIN OptionTypes ot ON pbs.BreedName = bt.BreedName
+	JOIN Pets p ON p.PetFinderID = pbs.PetFinderID
+	WHERE NOT EXISTS (
+		SELECT 1
+		FROM PetOptions pb
+		WHERE ot.OptionTypePK = po.OptionTypePK
+		AND p.PetKey = po.PetKey
+	);
+
+	DELETE FROM PetPhotos pp
+	WHERE NOT EXISTS (
+		SELECT 1
+		FROM PetPhotosStaging pps
+		JOIN Pets p On p.PetFinderID = pps.PetFinderID
+		WHERE p.PetPK = pp.PetPK
+		AND pps.PhotoID = pp.PhotoID
+		AND pps.PhotoSize = pp.PhotoSize
+		AND pps.PhotoURL = pp.PhotoURL
+	);
+
+	INSERT INTO PetPhotos (
+		PetPK
+		,PhotoID
+		,PhotoSize
+		,PhotoURL
+	)
+	SELECT p.PetPK
+		,pps.PhotoID
+		,pps.PhotoSize
+		,pps.PhotoURL
+	FROM PetPhotosStaging pps
+	JOIN Pets p On p.PetFinderID = pps.PetFinderID
+	WHERE NOT EXISTS (
+		SELECT 1
+		FROM PetPhotos pp
+		WHERE p.PetPK = pp.PetPK
+		AND pps.PhotoID = pp.PhotoID
+		AND pps.PhotoSize = pp.PhotoSize
+		AND pps.PhotoURL = pp.PhotoURL
+	);
+
+END
+$$ LANGUAGE plpgsql;
 
 
 

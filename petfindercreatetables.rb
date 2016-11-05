@@ -22,7 +22,19 @@ DROP TABLE IF EXISTS BreedTypes;
 DROP TABLE IF EXISTS AnimalTypes;
 DROP TABLE IF EXISTS AgeTypes;
 
-DROP FUNCTION IF EXISTS AddShelter;
+DROP FUNCTION IF EXISTS AddShelter(pShelterID varchar(10)
+	,pShelterName varchar(255)
+	,pAddress1 varchar(1000)
+	,pAddress2 varchar(1000)
+	,pCity varchar(100)
+	,pState char(2)
+	,pZip char(5)
+	,pCountry varchar(100)
+	,pLatitude decimal
+	,pLongitude decimal
+	,pPhone varchar(20)
+	,pFax varchar(20)
+	,pEmail varchar(254));
 
 CREATE TABLE AgeTypes(
 	AgeTypePK serial PRIMARY KEY
@@ -81,7 +93,7 @@ CREATE TABLE Pets (
 	,AgeTypePK INT REFERENCES AgeTypes(AgeTypepk)
 	,Gender char(1) NOT NULL
 	,SizeTypePK INT REFERENCES SizeTypes(SizeTypePK)
-	,Description varchar(2000)
+	,Description text
 	,LastUpdate timestamp
 	,PetStatusType char(1) NOT NULL
 );
@@ -121,7 +133,8 @@ CREATE TABLE PetPhotos (
 	,PhotoLocation varchar(1000)
 );
 
-CREATE OR REPLACE FUNCTION AddShelter(pShelterID varchar(10)
+CREATE OR REPLACE FUNCTION AddShelter(
+  pShelterID varchar(10)
 	,pShelterName varchar(255)
 	,pAddress1 varchar(1000)
 	,pAddress2 varchar(1000)
@@ -144,6 +157,22 @@ BEGIN
 	INSERT INTO Shelters(shelterId, sheltername, address1, address2, city, state, zip, country, latitude, longitude, phone, fax, email)
 		SELECT pShelterID, pShelterName, pAddress1, pAddress2, pCity, pState, pZip, pCountry, pLatitude, pLongitude, pPhone, pFax, pEmail WHERE NOT EXISTS(SELECT 1 FROM Shelters WHERE ShelterID = pShelterID);
 END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION AddPet(pPetFinderID int
+	,pShelterID varchar(10)
+	,pShelterPetID varchar(100)
+	,pName varchar(100)
+	,pmix varchar(3)
+	,pGender char(1)
+	,pDescription text
+	,pPetStatusType char(1)
+)
+RETURNS void AS $$
+BEGIN
+	
+END
 $$ LANGUAGE plpgsql;
 "
 

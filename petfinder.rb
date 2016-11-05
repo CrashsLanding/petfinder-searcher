@@ -52,7 +52,8 @@ end
 
 def add_pet(pet)
   conn = Sequel.postgres('petfinder', :user => 'overlord', :password => 'password', :host => 'localhost')
-  conn.run("SELECT AddPet(#{pet.id}
+  conn.run("SELECT AddPet(
+              #{pet.id}
               ,'#{pet.name}'
               ,'#{pet.animal}'
               ,'#{pet.mix}'
@@ -61,10 +62,9 @@ def add_pet(pet)
               ,'#{pet.shelter_pet_id}'
               ,'#{pet.sex}'
               ,'#{pet.size}'
-              ,'#{pet.description}'
+              ,'#{pet.description.gsub('\'', '\'\'')}'
               ,'#{pet.last_update}'
               ,'#{pet.status}'
-
     );")
 
   #pet.breeds
@@ -81,14 +81,8 @@ scheduler = Rufus::Scheduler.new
   shelter_ids.each do |id|
     add_shelter(petfinder.shelter(id))
 
-    pets = petfinder.shelter_pets(id, {count:10})
-    pet = pets.first
-    puts pet.last_update
-    puts pet.size
-    puts pet.age
-    puts pet.animal
-    puts pet.sex
-
+    pets = petfinder.shelter_pets(id, {count:5})
+    add_pet(pets.first)
     # pets.each do |pet|
     #   add_pet(pet)
     # end

@@ -698,7 +698,123 @@ class PetFinderCreateDatabase
 		END
 		$$ LANGUAGE plpgsql;
 
+		CREATE OR REPLACE FUNCTION ProcessSpecialShelterPetIDs()
+		RETURNS void as $$
+		BEGIN
+			/*
+				The Client we are working with has overloaded the ShelterPetIDs to add additional Options. so like NoClaw a cat may have FELV/FIV they have set the ShelterPetID
+				This Function splits the ShelterPetIDs by / and then inserts them as multiple additonal options.
 
+				Specifically not making this parameterized for another delimiter as this is a function that should not be heavily used
+			*/
+			DROP TABLE IF EXISTS StringsToSplit;
+			DROP TABLE IF EXISTS SplitStrings;
+
+			CREATE TEMPORARY TABLE StringsToSplit(
+				PetPK int
+				,String varchar(100)
+			);
+
+			CREATE TEMPORARY TABLE SplitStrings(
+				PetPK int
+				,String varchar(100)
+			);
+
+			INSERT INTO StringsToSplit (PetPK, String)
+			SELECT p.PetPK
+				,ShelterPetID
+			FROM Pets p;
+
+			/*
+				This splits the strings out into a table which is
+					PetPK and SplitString
+					aka VALUES (3,'FELV/FIV');
+					Becomes
+					PetPK	String
+					3		FELV
+					3		FIV
+				This can probably be done better. if you can find a way to user regexp_split_to_array with a LEFT JOIN LATERAL have at.
+			*/
+			INSERT INTO SplitStrings (PetPK,String)
+			SELECT PetPK,String
+			FROM (
+				SELECT
+					s2s.PetPK
+					,split_part(s2s.String,'/',1) as String
+				FROM StringsToSplit s2s
+				UNION ALL
+				SELECT
+					s2s.PetPK
+					,split_part(s2s.String,'/',2)
+				FROM StringsToSplit s2s
+				UNION ALL
+				SELECT
+					s2s.PetPK
+					,split_part(s2s.String,'/',3)
+				FROM StringsToSplit s2s
+				UNION ALL
+				SELECT
+					s2s.PetPK
+					,split_part(s2s.String,'/',4)
+				FROM StringsToSplit s2s
+				UNION ALL
+				SELECT
+					s2s.PetPK
+					,split_part(s2s.String,'/',5)
+				FROM StringsToSplit s2s
+				UNION ALL
+				SELECT
+					s2s.PetPK
+					,split_part(s2s.String,'/',6)
+				FROM StringsToSplit s2s
+			) SplitStrings
+			WHERE SplitStrings.String != ''
+			ORDER BY PetPK
+				,String
+			;
+
+
+			--Add any new Options that dont exist already
+			INSERT INTO OptionTypes (OptionTypeName)
+			SELECT OtherOptions.String
+			FROM (
+				SELECT ss.String
+				FROM SplitStrings ss
+				GROUP BY ss.String
+			) OtherOptions
+			WHERE NOT EXISTS (
+				SELECT 1
+				FROM OptionTypes ot
+				WHERE ot.OptionTypeName = OtherOptions.String
+			)
+			;
+
+			INSERT INTO PetOptions (PetPK, OptionTypePK)
+			SELECT SpecialOptions.PetPK
+				,ot.OptionTypePK
+			FROM (
+				SELECT
+					ss.PetPK
+					,ss.String as OptionTypeName
+				FROM SplitStrings ss
+				GROUP BY ss.PetPK
+					,ss.String
+			) SpecialOptions
+			JOIN OptionTypes ot ON SpecialOptions.OptionTypeName = ot.OptionTypeName
+			WHERE NOT EXISTS (
+				SELECT 1
+				FROM PetOptions po
+				WHERE ot.OptionTypePK = po.OptionTypePK
+				AND SpecialOptions.PetPK = po.PetPK
+			);
+
+			/*
+				Dont Do a DELETE from PetOptions like you do in the Main Processing version
+				 1. you dont have all of the optins here
+				 2. the main processing would have taken care of it already
+			*/
+		END
+		$$ LANGUAGE plpgsql;
 
 
 		")

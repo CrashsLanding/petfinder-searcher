@@ -5,6 +5,7 @@ require 'sinatra'
 require 'sinatra/cross_origin'
 require 'sequel'
 require 'pg'
+require_relative 'petfindercreatedatabase.rb'
 
 settings = Sinatra::Application.settings
 
@@ -58,11 +59,13 @@ end
 
 class PetfinderScheduler
 
-  def initialize()
+  attr_reader :database_url
+
+  def initialize(database_url)
     @api_key = ENV['PETFINDER_API_KEY']
     @api_secret = ENV['PETFINDER_API_SECRET']
     @shelter_ids = ENV['PETFINDER_SHELTER_IDS'].split(',')
-    @database_url = ENV['DATABASE_URL']
+    @database_url = database_url
 
     @petfinder = Petfinder::Client.new(@api_key, @api_secret)
   end
@@ -159,20 +162,24 @@ class PetfinderScheduler
       pets.each do |pet|
         add_pet(pet)
       end
-      store pets
     end
   end
 end
 
+database_url = ENV['DATABASE_URL']
+create_db = PetFinderCreateDatabase.new(database_url)
+create_db.create_db
 patfinder_server = PetfinderServer.new
 scheduler = Rufus::Scheduler.new
 
 scheduler.every '1h' do
-  petfinder_scheduler = PetfinderScheduler.new
+  database_url = ENV['DATABASE_URL']
+  petfinder_scheduler = PetfinderScheduler.new(database_url)
   petfinder_scheduler.fill_db()
 end
 
 scheduler.in '10s' do
-  petfinder_scheduler = PetfinderScheduler.new
+  database_url = ENV['DATABASE_URL']
+  petfinder_scheduler = PetfinderScheduler.new(database_url)
   petfinder_scheduler.fill_db()
 end

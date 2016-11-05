@@ -11,11 +11,11 @@ class PetFinderCreateDatabase
 	def create_db
 		#Setup DB Connection
 		uri = URI.parse(@database_url)
-		DB = Sequel.postgres(uri.path[1..-1], :user => uri.user, :password => uri.password, :host => uri.hostname, :port => uri.port)
-		#:host => uri.hostname, :port => uri.port, :user => uri.user, :password => uri.password, :dbname => uri.path[1..-1]
+		database_name = uri.path[1..-1]
+		conn = Sequel.postgres(database_name, :user => uri.user, :password => uri.password, :host => uri.hostname, :port => uri.port)
 
 		#Creates the tables
-		DB.run "
+		conn.run("
 		DROP TABLE IF EXISTS PetsStaging;
 		DROP TABLE IF EXISTS PetPhotosStaging;
 		DROP TABLE IF EXISTS PetContactsStaging;
@@ -690,34 +690,34 @@ class PetFinderCreateDatabase
 
 
 
-		"
+		")
 
 
 		# Populates all of the tables using the xsd
 		doc = REXML::Document.new(File.new('petfinder.xsd'))
 
 
-		AnimalTypes = DB[:animaltypes]
+		animalTypes = conn[:animaltypes]
 
 		REXML::XPath.each(doc, '//xs:simpleType[@name="animalType"]//xs:enumeration/@value') do |e|
-		  AnimalTypes.insert(:animaltypename => e.value)
+		  animalTypes.insert(:animaltypename => e.value)
 		end
 
-		petoptiontypes = DB[:optiontypes]
+		petoptiontypes = conn[:optiontypes]
 
 		REXML::XPath.each(doc, '//xs:simpleType[@name="petOptionType"]//xs:enumeration/@value') do |f|
 		  petoptiontypes.insert(:optiontypename => f.value)
 			# puts f.value
 		end
 
-		breedtypesstaging = DB[:breedtypesstaging]
+		breedtypesstaging = conn[:breedtypesstaging]
 
 		REXML::XPath.each(doc, '//xs:simpleType[@name="petfinderBreedType"]//xs:enumeration/@value') do |f|
 		  breedtypesstaging.insert(:breedname => f.value)
 			# puts f.value
 		end
 
-		DB.run "
+		conn.run "
 			INSERT INTO BreedTypes (
 				BreedName
 			)
@@ -728,17 +728,17 @@ class PetFinderCreateDatabase
 			DROP TABLE BreedTypesStaging;
 		"
 
-		AgeTypes = DB[:agetypes]
+		ageTypes = conn[:agetypes]
 
 		REXML::XPath.each(doc, '//xs:simpleType[@name="petAgeType"]//xs:enumeration/@value') do |f|
-		  AgeTypes.insert(:agetypename => f.value)
+		  ageTypes.insert(:agetypename => f.value)
 			# puts f.value
 		end
 
-		SizeTypes = DB[:sizetypes]
+		sizeTypes = conn[:sizetypes]
 
 		REXML::XPath.each(doc, '//xs:simpleType[@name="petSizeType"]//xs:enumeration/@value') do |f|
-		  SizeTypes.insert(:sizetypename => f.value)
+		  sizeTypes.insert(:sizetypename => f.value)
 			# puts f.value
 		end
 	end

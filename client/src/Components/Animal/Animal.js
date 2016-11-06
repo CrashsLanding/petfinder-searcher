@@ -5,7 +5,7 @@ import './Animal.css';
 function Animal(props) {
     return <div className="Animal flip-container col-xs-12 col-sm-6 col-md-4 col-xl-3">
       <div className="flipper">
-        <a href={props.url}>
+        <a target="_blank" href={props.url}>
           <div className="front">
               <img src={props.imageUrl} alt={props.name} />
               <div className="animal-name"><span>{props.name}</span></div>

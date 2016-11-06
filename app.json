@@ -19,6 +19,14 @@
     "PETFINDER_SHELTER_IDS": {
       "description": "A comma seperated list (no spaces) of shelter ids from Petfinder.",
       "required": "true"
+    },
+    "PETFINDER_DEFAULT_PHOTO_URL": {
+      "description": "A url for the default image to be displayed in the case that the animal in question doesn't have a photo in Petfinder.",
+      "required": "true"
+    },
+    "PETFINDER_DEFAULT_PHOTO_ID": {
+      "default": "999999999",
+      "required": "true"
     }
   }
 }

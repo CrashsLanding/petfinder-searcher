@@ -37,6 +37,7 @@ It should look like:
 PETFINDER_API_KEY=SomeApiKeyHere
 PETFINDER_API_SECRET=SomeApiSecretHere
 PETFINDER_SHELTER_IDS=Comma,Seperated,List,Of,Ids
+PETFINDER_DEFAULT_PHOTO_URL=http://www.example.com/example.photo
 ```
 
 We are using Postgres with pg_config, so you need to have that installed, and accessible from the path before going further. Talk to Kevin is this isn't fixed / easier to deal with, and you're still reading it.

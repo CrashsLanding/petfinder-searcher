@@ -1,4 +1,5 @@
 import React from 'react';
+import { Glyphicon } from 'react-bootstrap';
 import './Animal.css';
 
 function Animal(props) {
@@ -17,6 +18,9 @@ function Animal(props) {
             <ul className="breeds">
               {props.breeds.map((breed, i) => <li key={i}>{breed}</li>)}
             </ul>
+            <div className="moreInfo">
+            <p>More Info <Glyphicon glyph="chevron-right" /> </p>
+            </div>
           </div>
         </a>
       </div>

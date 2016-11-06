@@ -9,19 +9,24 @@
 
 .FacetName {
   text-transform: uppercase;
-  background-color: lightgray;
+  background-color:#94b0ff;
+  color: #fff;
   padding: 0.3em;
+  padding-left:20px;
 }
 
 .FacetEntry {
   text-transform: capitalize;
+  padding: 3px;
+  color: #757575;
+  font-size: 12px;
 }
 
 .FacetEntry:nth-child(even) {
-  background-color: #f5f4f4;
+  background-color: #f2f2f2;
 }
 .FacetEntry:nth-child(odd) {
-  background-color: #e7e7e7;
+  background-color: #f2f2f2;
 }
 
 .FacetEntry input[type="checkbox"] {
@@ -32,4 +37,5 @@
   cursor: pointer;
   display: block;
   width: 100%;
+  padding-left:15px;
 }

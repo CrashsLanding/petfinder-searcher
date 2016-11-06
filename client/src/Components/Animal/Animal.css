@@ -1,5 +1,5 @@
 .Animal {
-  /*width: 200px;*/
+  max-width: 250px;
   height: 260px;
   margin-bottom: 15px;
 }
@@ -14,13 +14,33 @@
 
 .Animal .back {
   width: 100%;
-  padding: 0 15px;
-  background-color: gray;
+  padding: 0 25px;
+  background-color: #353535;
   color: white;
 }
 
+.Animal .back::after {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  content: "more info \e080";
+  margin-right: 25px;
+  margin-bottom:25px;
+}
+
 .Animal .back h4 {
-  margin-bottom: 0;
+  margin: 50px 0px 5px 0px;
+  font-size: 21px;
+  line-height: 23px;
+}
+.title span{
+color: #c3c3c3;
+}
+.breeds {
+  list-style: none;
+  font-size: 12px;
+  margin: 5px 0px 25px -40px;
+  color: #c3c3c3;
 }
 
 .Animal img {
@@ -32,7 +52,7 @@
 .Animal .animal-name {
   height: 40px;
   color: white;
-  background-color: gray;
+  background-color:#353535;
   text-align: center;
 }
 

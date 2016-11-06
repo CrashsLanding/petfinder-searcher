@@ -8,6 +8,17 @@ class PetFinderCreateDatabase
 		@database_url = database_url
 	end
 
+	def db_exists?
+		uri = URI.parse(@database_url)
+		database_name = uri.path[1..-1]
+		conn = Sequel.postgres(database_name,
+		                       :user => uri.user,
+		                       :password => uri.password,
+		                       :host => uri.hostname,
+		                       :port => uri.port)
+		conn.table_exists?(:pets)
+	end
+
 	def create_db
 		#Setup DB Connection
 		uri = URI.parse(@database_url)

@@ -21,4 +21,20 @@ namespace :db do
 
     PetfinderScheduler.new(database_url, api_key, api_secret, shelter_ids).fill_db()
   end
+
+  task update: :dotenv do
+    database_url = ENV['DATABASE_URL']
+    api_key = ENV['PETFINDER_API_KEY']
+    api_secret = ENV['PETFINDER_API_SECRET']
+    shelter_ids = ENV['PETFINDER_SHELTER_IDS']
+
+    if PetFinderCreateDatabase.new(database_url).db_exists?
+      puts "Database already exists"
+    else
+      PetFinderCreateDatabase.new(database_url).create_db
+      puts "Database provisioned"
+    end
+
+    PetfinderScheduler.new(database_url, api_key, api_secret, shelter_ids).fill_db()
+  end
 end

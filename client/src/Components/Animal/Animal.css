@@ -89,8 +89,14 @@
 
 /* back, initially hidden pane */
 .back {
-	transform: rotateY(180deg);
+  transform: rotateY(180deg);
   padding: 0 25px;
   background-color: #353535;
   color: white;
+  
+}
+
+.moreInfo {
+  text-align: right;
+  margin-top: 20px;
 }

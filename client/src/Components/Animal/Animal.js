@@ -19,7 +19,7 @@ function Animal(props) {
               {props.breeds.map((breed, i) => <li key={i}>{breed}</li>)}
             </ul>
             <div className="moreInfo">
-            <p>More Info <Glyphicon glyph="chevron-right" /> </p>
+              <p>More Info <Glyphicon glyph="chevron-right" /> </p>
             </div>
           </div>
         </a>

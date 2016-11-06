@@ -5,27 +5,11 @@
 }
 
 .Animal a {
-  text-decoration: none;  
+  text-decoration: none;
 }
 
 .Animal a:hover {
   text-decoration: none;
-}
-
-.Animal .back {
-  width: 100%;
-  padding: 0 25px;
-  background-color: #353535;
-  color: white;
-}
-
-.Animal .back::after {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  content: "more info \e080";
-  margin-right: 25px;
-  margin-bottom:25px;
 }
 
 .Animal .back h4 {
@@ -33,9 +17,11 @@
   font-size: 21px;
   line-height: 23px;
 }
+
 .title span{
-color: #c3c3c3;
+  color: #c3c3c3;
 }
+
 .breeds {
   list-style: none;
   font-size: 12px;
@@ -66,17 +52,8 @@ color: #c3c3c3;
 	perspective: 1000px;
 }
 
-/*@keyframes cardflip {
-  10% { transform: rotateY(-10deg); }
-  100% { transform: rotateY(180deg); }
-}*/
-
 /* flip the pane when hovered */
 .flip-container:hover .flipper, .flip-container.hover .flipper {
-  /*animation-duration: 5s;
-  animation-name: cardflip;
-  animation-fill-mode: both;*/
-
   transition-delay:.25s;
   transform: rotateY(180deg);
 }
@@ -96,8 +73,8 @@ color: #c3c3c3;
 
 /* hide back of pane during swap */
 .front, .back {
+  width: 100%;
 	backface-visibility: hidden;
-
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -113,4 +90,7 @@ color: #c3c3c3;
 /* back, initially hidden pane */
 .back {
 	transform: rotateY(180deg);
+  padding: 0 25px;
+  background-color: #353535;
+  color: white;
 }

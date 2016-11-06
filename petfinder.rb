@@ -46,7 +46,19 @@ class PetfinderScheduler
 
   def add_pet(conn, pet)
     begin
-      conn.exec_prepared('addPet', [pet.id, pet.name, pet.animal, pet.mix, pet.age, pet.shelter_id, pet.shelter_pet_id, pet.sex, pet.size, pet.description, pet.last_update, pet.status])
+      # puts pet.name
+      conn.exec_prepared('addPet', [pet.id,
+                                    pet.name,
+                                    pet.animal,
+                                    pet.mix,
+                                    pet.age,
+                                    pet.shelter_id,
+                                    pet.shelter_pet_id,
+                                    pet.sex,
+                                    pet.size,
+                                    pet.description,
+                                    pet.last_update,
+                                    pet.status])
 
       pet.options.each do |option|
         conn.exec_prepared('addPetOption', [pet.id, option])
@@ -58,11 +70,11 @@ class PetfinderScheduler
 
       pic = pet.photos.first
       conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 'x', pic.large])
-      conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 'pn', pic.medium])
-      conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 'fpm', pic.small])
-      conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 'pnt', pic.thumbnail])
-      conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 't', pic.tiny])
-        
+      # conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 'pn', pic.medium])
+      # conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 'fpm', pic.small])
+      # conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 'pnt', pic.thumbnail])
+      # conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 't', pic.tiny])
+
       contact = parse_contact_info(pet.contact)
       if contact.empty?
         puts 'Error processing contacts.'
@@ -110,10 +122,10 @@ class PetfinderScheduler
       conn.prepare('processStaging', "SELECT ProcessStagingTables();")
       conn.exec_prepared('truncateStaging')
 
-      puts pets.length
+      # puts pets.length
       pets.each do |pet|
-        puts pet.id
-        puts pet.name
+        # puts pet.id
+        # puts pet.name
         add_pet(conn, pet)
       end
 
@@ -195,11 +207,16 @@ class PetfinderServer < Sinatra::Base
 
   def get_connection
     uri = URI.parse(ENV['DATABASE_URL'])
-    PGconn.connect(:host => uri.hostname, :port => uri.port, :user => uri.user, :password => uri.password, :dbname => uri.path[1..-1])
+    PGconn.connect(:host => uri.hostname,
+                   :port => uri.port,
+                   :user => uri.user,
+                   :password => uri.password,
+                   :dbname => uri.path[1..-1])
   end
 
   def get_all_pets()
     conn = get_connection()
+
     results  = conn.exec(
       "SELECT p.petpk, p.petfinderid, p.name, p.mix, p.description, p.petstatustype, s.sheltername, ag.agetypename, g.genderdisplayname, st.sizetypedisplayname, an.animaltypename, pp.photourl
       FROM Pets p
@@ -217,7 +234,10 @@ class PetfinderServer < Sinatra::Base
       ON p.petpk = pp.petpk
       WHERE pp.photosize='x';")
     pets = {}
+
     results.each do |res|
+      # puts res['name']
+
       pets[res['petpk']] = {
         :petPk => res['petpk'],
         :id => res['petfinderid'],

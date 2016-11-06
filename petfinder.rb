@@ -18,90 +18,6 @@ configure do
   enable :cross_origin
 end
 
-class PetfinderServer < Sinatra::Base
-
-  get '/pets/all' do
-    # pets = []
-    # shelter_ids.each do |id|
-    #   pets += petfinder.shelter_pets(id, {count:1000})
-    # end
-    pets = get_all_pets()
-    pets_output = pets.map { |pet| {
-      :id => pet[:id],
-      :name => pet['name'],
-      :sex => pet['sex'],
-      :age => pet['age'],
-      :size => pet['size'],
-      # :breeds => pet.breeds,
-      :petType => pet['animal'],
-      :petfinderUrl => pet['petfinderUrl'],
-      :photoUrl => pet['photoUrl']}}
-    {:pets => pets_output}.to_json
-  end
-
-  get '/pets/:shelter_id' do
-    options = {count:1000}
-    pets = petfinder.shelter_pets(params['shelter_id'], options)
-    pets_output = pets.map { |pet| {
-      :name => pet.name,
-      :sex => pet.sex,
-      :age => pet.age,
-      :size => pet.size,
-      :breeds => pet.breeds,
-      :pet_type => pet.animal }}
-    {:pets => pets_output}.to_json
-  end
-
-  def get_connection
-    uri = URI.parse(ENV['DATABASE_URL'])
-    PGconn.connect(:host => uri.hostname, :port => uri.port, :user => uri.user, :password => uri.password, :dbname => uri.path[1..-1])
-  end
-
-  def get_all_pets()
-    conn = get_connection()
-    results  = conn.exec(
-      'SELECT p.petfinderid, p.name, p.mix, p.description, p.petstatustype, s.sheltername, ag.agetypename, g.genderdisplayname, st.sizetypedisplayname, an.animaltypename
-      FROM Pets p
-      INNER JOIN Shelters s
-      ON p.shelterpk = s.shelterpk
-      INNER JOIN AgeTypes ag
-      ON p.agetypepk = ag.agetypepk
-      INNER JOIN AnimalTypes an
-      ON p.animaltypepk = an.animaltypepk
-      INNER JOIN GenderTypes g
-      ON p.genderpk = g.genderpk
-      INNER JOIN SizeTypes st
-      ON p.sizetypepk = st.sizetypepk;')
-    pets = {}
-    results.each do |res|
-      # puts res
-      pets.merge!({res['petpk'] => {
-        :petPk => res['petpk'],
-        :id => res['petfinderid'],
-        :name => res['name'],
-        :sex => res['genderdisplayname'],
-        :age => res['agetypename'],
-        :size => res['sizetypedisplayname'],
-        # :breeds => pet.breeds,
-        :petType => res['animaltypename'],
-        :petfinderUrl => 'https://www.petfinder.com/petdetail/' + res['petfinderid'],
-        :photoUrl => 'https://www.wired.com/wp-content/uploads/2015/09/google-logo.jpg'}})
-    end
-
-    puts pets.keys
-    results = conn.exec(
-      'SELECT petpk, bt.breedtypepk, breedname
-        FROM petbreeds pb
-        INNER JOIN breedtypes bt
-        ON pb.breedtypepk = bt.breedtypepk
-        WHERE pb.petpk = ANY(ARRAY' + pets.keys + ');'
-      )
-  end
-
-
-  run!
-end
-
 class PetfinderScheduler
 
   attr_reader :database_url
@@ -224,8 +140,7 @@ end
 # database_url = ENV['DATABASE_URL']
 # create_db = PetFinderCreateDatabase.new(database_url)
 # create_db.create_db
-petfinder_server = PetfinderServer.new
-scheduler = Rufus::Scheduler.new
+# scheduler = Rufus::Scheduler.new
 
 # scheduler.every '1h' do
 #   database_url = ENV['DATABASE_URL']
@@ -240,3 +155,112 @@ scheduler = Rufus::Scheduler.new
 #   petfinder_scheduler.fill_db()
 #   puts 'Import complete'
 # end
+
+class PetfinderServer < Sinatra::Base
+
+  get '/pets/all' do
+    # pets = []
+    # shelter_ids.each do |id|
+    #   pets += petfinder.shelter_pets(id, {count:1000})
+    # end
+    pets = get_all_pets()
+    puts "TEST"
+    puts pets
+    pets_output = pets.map { |key, pet| {
+      :id => pet[:id],
+      :name => pet[:name],
+      :sex => pet[:sex],
+      :age => pet[:age],
+      :size => pet[:size],
+      :breeds => pet[:breeds],
+      :colors => pet[:colors],
+      :petType => pet[:petType],
+      :petfinderUrl => pet[:petfinderUrl],
+      :photoUrl => pet[:photoUrl]}}
+    {:pets => pets_output}.to_json
+  end
+
+  get '/pets/:shelter_id' do
+    options = {count:1000}
+    pets = petfinder.shelter_pets(params['shelter_id'], options)
+    pets_output = pets.map { |pet| {
+      :name => pet.name,
+      :sex => pet.sex,
+      :age => pet.age,
+      :size => pet.size,
+      :breeds => pet.breeds,
+      :pet_type => pet.animal }}
+    {:pets => pets_output}.to_json
+  end
+
+  def get_connection
+    uri = URI.parse(ENV['DATABASE_URL'])
+    PGconn.connect(:host => uri.hostname, :port => uri.port, :user => uri.user, :password => uri.password, :dbname => uri.path[1..-1])
+  end
+
+  def get_all_pets()
+    conn = get_connection()
+    results  = conn.exec(
+      "SELECT p.petpk, p.petfinderid, p.name, p.mix, p.description, p.petstatustype, s.sheltername, ag.agetypename, g.genderdisplayname, st.sizetypedisplayname, an.animaltypename, pp.photourl
+      FROM Pets p
+      INNER JOIN Shelters s
+      ON p.shelterpk = s.shelterpk
+      INNER JOIN AgeTypes ag
+      ON p.agetypepk = ag.agetypepk
+      INNER JOIN AnimalTypes an
+      ON p.animaltypepk = an.animaltypepk
+      INNER JOIN GenderTypes g
+      ON p.genderpk = g.genderpk
+      INNER JOIN SizeTypes st
+      ON p.sizetypepk = st.sizetypepk
+      INNER JOIN PetPhotos pp
+      ON p.petpk = pp.petpk
+      WHERE pp.photosize='x';")
+    pets = {}
+    results.each do |res|
+      # puts res
+      pets[res['petpk']] = {
+        :petPk => res['petpk'],
+        :id => res['petfinderid'],
+        :name => res['name'],
+        :sex => res['genderdisplayname'],
+        :age => res['agetypename'],
+        :size => res['sizetypedisplayname'],
+        :breeds => [],
+        :colors => [],
+        :petType => res['animaltypename'],
+        :petfinderUrl => 'https://www.petfinder.com/petdetail/' + res['petfinderid'],
+        :photoUrl => res['photourl']}
+    end
+
+    results = conn.exec(
+      'SELECT petpk, bt.breeddisplayname
+        FROM petbreeds pb
+        INNER JOIN breedtypes bt
+        ON pb.breedtypepk = bt.breedtypepk
+        GROUP BY petpk, bt.breeddisplayname;'
+      )
+
+    results.each do |res|
+      pets[res['petpk']][:breeds].push(res['breeddisplayname'])
+    end
+
+    results = conn.exec(
+      'SELECT petpk, breedcolor
+        FROM petbreeds pb
+        INNER JOIN breedtypes bt
+        ON pb.breedtypepk = bt.breedtypepk
+        GROUP BY petpk, bt.breedcolor;'
+      )
+
+    results.each do |res|
+      pets[res['petpk']][:colors].push(res['breedcolor'])
+      puts pets[res['petpk']]
+    end
+
+    return pets
+  end
+  run!
+end
+
+petfinder_server = PetfinderServer.new

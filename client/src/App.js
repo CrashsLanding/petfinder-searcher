@@ -55,16 +55,17 @@ class App extends Component {
     let size = this.createFacetEntriesForFacetName('size');
     let sex = this.createFacetEntriesForFacetName('sex');
     let options = this.createFacetEntriesForFacetName('options');
+    let colors = this.createFacetEntriesForFacetName('colors');
 
     this.setState({
-      facets: { options, age, size, sex, breeds }
+      facets: { options, breeds, colors, age, size, sex }
     });
   }
 
   createFacetEntriesForFacetName(facetName) {
     let animals = this.state.animals;
     let availableEntriesForFacet = _.flatMap(animals, animal => _.get(animal, facetName));
-    return availableEntriesForFacet.reduce(function(map, obj) {
+    return availableEntriesForFacet.reduce((map, obj) => {
       map[obj] = false;
       return map;
     }, {});

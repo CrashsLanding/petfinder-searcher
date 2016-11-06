@@ -137,32 +137,28 @@ class PetfinderScheduler
   end
 end
 
-# database_url = ENV['DATABASE_URL']
-# create_db = PetFinderCreateDatabase.new(database_url)
-# create_db.create_db
-# scheduler = Rufus::Scheduler.new
+database_url = ENV['DATABASE_URL']
+create_db = PetFinderCreateDatabase.new(database_url)
+create_db.create_db
+scheduler = Rufus::Scheduler.new
 
-# scheduler.every '1h' do
-#   database_url = ENV['DATABASE_URL']
-#   petfinder_scheduler = PetfinderScheduler.new(database_url)
-#   petfinder_scheduler.fill_db()
-# end
+scheduler.every '1h' do
+  database_url = ENV['DATABASE_URL']
+  petfinder_scheduler = PetfinderScheduler.new(database_url)
+  petfinder_scheduler.fill_db()
+end
 
-# scheduler.in '1s' do
-#   puts 'Starting import'
-#   database_url = ENV['DATABASE_URL']
-#   petfinder_scheduler = PetfinderScheduler.new(database_url)
-#   petfinder_scheduler.fill_db()
-#   puts 'Import complete'
-# end
+scheduler.in '1s' do
+  puts 'Starting import'
+  database_url = ENV['DATABASE_URL']
+  petfinder_scheduler = PetfinderScheduler.new(database_url)
+  petfinder_scheduler.fill_db()
+  puts 'Import complete'
+end
 
 class PetfinderServer < Sinatra::Base
 
   get '/pets/all' do
-    # pets = []
-    # shelter_ids.each do |id|
-    #   pets += petfinder.shelter_pets(id, {count:1000})
-    # end
     pets = get_all_pets()
     puts "TEST"
     puts pets
@@ -218,7 +214,6 @@ class PetfinderServer < Sinatra::Base
       WHERE pp.photosize='x';")
     pets = {}
     results.each do |res|
-      # puts res
       pets[res['petpk']] = {
         :petPk => res['petpk'],
         :id => res['petfinderid'],
@@ -255,9 +250,7 @@ class PetfinderServer < Sinatra::Base
 
     results.each do |res|
       pets[res['petpk']][:colors].push(res['breedcolor'])
-      puts pets[res['petpk']]
     end
-
     return pets
   end
   run!

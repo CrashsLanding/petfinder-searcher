@@ -28,7 +28,9 @@ class Facet extends React.Component {
           return 2;
         case "XL":
           return 3;
-        }
+        default:
+          return 4;
+        };
       };
       
     case "age":
@@ -40,6 +42,8 @@ class Facet extends React.Component {
           return 1;
         case "Senior":
           return 2;
+        default:
+          return 4;
         }
       };
       
@@ -62,9 +66,9 @@ class Facet extends React.Component {
     if (andOrCandidate) {
       let isAnding = _.includes(this.props.andFacets, this.props.name);
       if (isAnding) {
-        andDom = <span className="andor" onClick={andFunction}>match some</span>
+        andDom = <span className="andor" onClick={andFunction}>match some</span>;
       } else {
-        andDom = <span className="andor" onClick={andFunction}>match all</span>
+        andDom = <span className="andor" onClick={andFunction}>match all</span>;
       }
     }
 

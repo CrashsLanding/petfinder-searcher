@@ -41,10 +41,20 @@ class App extends Component {
     });
   }
 
+  processPet(pet){
+    let options = pet.options;
+    let index = options.indexOf("noClaws");
+    if (index !== -1){
+      options[index] = "declawed";
+    }
+    return pet;
+  }
+
   loadAnimals() {
     return axios.get(this.endpoint)
       .then(response => {
-        return _.sortBy(response.data['pets'], pet => pet.name);
+        let pets = _.map(response.data['pets'], pet => this.processPet(pet));
+        return _.sortBy(pets, pet => pet.name);
       });
   }
 

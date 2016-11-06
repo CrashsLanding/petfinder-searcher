@@ -1,6 +1,6 @@
 .Animal {
   max-width: 250px;
-  height: 260px;
+  max-height: 260px;
   margin-bottom: 15px;
 }
 

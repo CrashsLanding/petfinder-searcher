@@ -452,90 +452,9 @@ class PetFinderCreateDatabase
 		CREATE OR REPLACE FUNCTION ProcessStagingTables()
 		RETURNS text as $$
 		BEGIN
-			CREATE TEMPORARY TABLE PetsToDelete(
-				PetPK int
-			);
-			--Pets Logic
-			--Start delete pets
-			INSERT INTO PetsToDelete (PetPK)
-			SELECT p.PetPK
-			FROM Pets p
-			WHERE NOT EXISTS (
-			 SELECT 1
-			 FROM PetsStaging ps
-			 WHERE ps.PetFinderID = p.PetFinderID
-			);
 
-			DELETE
-			FROM PetBreeds
-			WHERE PetPK IN (
-				SELECT PetPK
-				FROM PetsToDelete
-			);
-
-			DELETE
-			FROM PetPhotos
-			WHERE PetPK IN (
-				SELECT PetPK
-				FROM PetsToDelete
-			);
-
-			DELETE
-			FROM PetContacts
-			WHERE PetPK IN (
-				SELECT PetPK
-				FROM PetsToDelete
-			);
-
-			DELETE
-			FROM PetOptions
-			WHERE PetPK IN (
-				SELECT PetPK
-				FROM PetsToDelete
-			);
-
-			DELETE
-			FROM Pets
-			WHERE PetPK IN (
-				SELECT PetPK
-				FROM PetsToDelete
-			);
-			--End Delete Pets
-
-			--Update Pets
-			UPDATE Pets
-			SET ShelterPK = ps2.ShelterPK
-			  ,ShelterPetID = ps2.ShelterPetID
-			  ,Name = ps2.Name
-			  ,AnimalTypePK = ps2.AnimalTypePK
-			  ,GenderPK = ps2.GenderPK
-			  ,SizeTypePK = ps2.SizeTypePK
-			  ,Description = ps2.Description
-			  ,LastUpdate = ps2.LastUpdate
-			  ,PetStatusType = ps2.PetStatusType
-			  ,AgeTypePK = ps2.AgeTypePK
-			FROM Pets p
-			JOIN (
-			  SELECT ps.PetFinderID
-			    ,s.ShelterPK
-			    ,ps.ShelterPetID
-			    ,ps.Name
-			    ,ant.AnimalTypePK
-			    ,gt.GenderPK
-			    ,st.SizeTypePK
-			    ,ps.Description
-			    ,ps.LastUpdate
-			    ,ps.PetStatusType
-			    ,agt.AgeTypePK
-			  FROM PetsStaging ps
-			  JOIN Shelters s ON ps.ShelterID = s.ShelterID
-			  JOIN AnimalTypes ant ON ant.AnimalTypeName = ps.AnimalTypeName
-			  JOIN SizeTypes st ON st.SizeTypeName = ps.SizeTypeName
-			  JOIN AgeTypes agt ON agt.AgeTypeName = ps.AgeTypeName
-			  JOIN GenderTypes gt ON gt.PetFinderGender = ps.Gender
-			) ps2 ON ps2.PetFinderID = p.PetFinderID
-			--Future Improvement. Add a WHERE clause to make it so that you do not do an update when there is nothing to change
-			;
+			--Just delete all the things
+			TRUNCATE Pets CASCADE;
 
 			--Insert Pets
 			INSERT INTO Pets (
@@ -822,10 +741,8 @@ class PetFinderCreateDatabase
 
 		")
 
-
 		# Populates all of the tables using the xsd
 		doc = REXML::Document.new(File.new('petfinder.xsd'))
-
 
 		animalTypes = conn[:animaltypes]
 
@@ -929,8 +846,6 @@ class PetFinderCreateDatabase
 				GROUP BY bts.BreedName
 			) bts2
 			LEFT JOIN KnownBreedColors kbc ON bts2.BreedName = kbc.BreedName;
-
-
 
 			DROP TABLE BreedTypesStaging;
 		"

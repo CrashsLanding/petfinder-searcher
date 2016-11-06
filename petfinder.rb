@@ -156,14 +156,12 @@ scheduler.every '1h' do
   petfinder_scheduler.fill_db()
 end
 
-unless bypass_db_setup
-  scheduler.in '1s' do
-    puts 'Starting import'
-    database_url = ENV['DATABASE_URL']
-    petfinder_scheduler = PetfinderScheduler.new(database_url)
-    petfinder_scheduler.fill_db()
-    puts 'Import complete'
-  end
+scheduler.in '1s' do
+  puts 'Starting import'
+  database_url = ENV['DATABASE_URL']
+  petfinder_scheduler = PetfinderScheduler.new(database_url)
+  petfinder_scheduler.fill_db()
+  puts 'Import complete'
 end
 
 class PetfinderServer < Sinatra::Base

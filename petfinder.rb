@@ -21,20 +21,21 @@ end
 class PetfinderServer < Sinatra::Base
 
   get '/pets/all' do
-    pets = []
-    shelter_ids.each do |id|
-      pets += petfinder.shelter_pets(id, {count:1000})
-    end
+    # pets = []
+    # shelter_ids.each do |id|
+    #   pets += petfinder.shelter_pets(id, {count:1000})
+    # end
+    pets = get_all_pets()
     pets_output = pets.map { |pet| {
-      :id => pet.id,
-      :name => pet.name,
-      :sex => pet.sex,
-      :age => pet.age,
-      :size => pet.size,
-      :breeds => pet.breeds,
-      :petType => pet.animal,
-      :petfinderUrl => 'https://www.petfinder.com/petdetail/' + pet.id,
-      :photoUrl => 'https://www.wired.com/wp-content/uploads/2015/09/google-logo.jpg'}}
+      :id => pet[:id],
+      :name => pet['name'],
+      :sex => pet['sex'],
+      :age => pet['age'],
+      :size => pet['size'],
+      # :breeds => pet.breeds,
+      :petType => pet['animal'],
+      :petfinderUrl => pet['petfinderUrl'],
+      :photoUrl => pet['photoUrl']}}
     {:pets => pets_output}.to_json
   end
 
@@ -58,9 +59,47 @@ class PetfinderServer < Sinatra::Base
 
   def get_all_pets()
     conn = get_connection()
-    
+    results  = conn.exec(
+      'SELECT p.petfinderid, p.name, p.mix, p.description, p.petstatustype, s.sheltername, ag.agetypename, g.genderdisplayname, st.sizetypedisplayname, an.animaltypename
+      FROM Pets p
+      INNER JOIN Shelters s
+      ON p.shelterpk = s.shelterpk
+      INNER JOIN AgeTypes ag
+      ON p.agetypepk = ag.agetypepk
+      INNER JOIN AnimalTypes an
+      ON p.animaltypepk = an.animaltypepk
+      INNER JOIN GenderTypes g
+      ON p.genderpk = g.genderpk
+      INNER JOIN SizeTypes st
+      ON p.sizetypepk = st.sizetypepk;')
+    pets = {}
+    results.each do |res|
+      # puts res
+      pets.merge!({res['petpk'] => {
+        :petPk => res['petpk'],
+        :id => res['petfinderid'],
+        :name => res['name'],
+        :sex => res['genderdisplayname'],
+        :age => res['agetypename'],
+        :size => res['sizetypedisplayname'],
+        # :breeds => pet.breeds,
+        :petType => res['animaltypename'],
+        :petfinderUrl => 'https://www.petfinder.com/petdetail/' + res['petfinderid'],
+        :photoUrl => 'https://www.wired.com/wp-content/uploads/2015/09/google-logo.jpg'}})
+    end
 
+    puts pets.keys
+    results = conn.exec(
+      'SELECT petpk, bt.breedtypepk, breedname
+        FROM petbreeds pb
+        INNER JOIN breedtypes bt
+        ON pb.breedtypepk = bt.breedtypepk
+        WHERE pb.petpk = ANY(ARRAY' + pets.keys + ');'
+      )
   end
+
+
+  run!
 end
 
 class PetfinderScheduler
@@ -95,18 +134,8 @@ class PetfinderScheduler
     end
   end
 
-  def add_pet(pet)
-    conn = nil
+  def add_pet(conn, pet)
     begin
-      conn = get_connection
-      conn.prepare('addPet', "SELECT AddPetStaging($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12);")
-      conn.prepare('addPetContact', "SELECT AddPetContactStaging($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)")
-      conn.prepare('addPetOption', "SELECT AddPetOptionStaging($1, $2);")
-      conn.prepare('addPetBreed', "SELECT AddPetBreedStaging($1, $2);")
-      conn.prepare('addPetPhoto', "SELECT AddPetPhotoStaging($1, $2, $3, $4);")
-      conn.prepare('truncateStaging', "SELECT TruncateStagingTables();")
-
-      conn.exec_prepared('truncateStaging')
       conn.exec_prepared('addPet', [pet.id, pet.name, pet.animal, pet.mix, pet.age, pet.shelter_id, pet.shelter_pet_id, pet.sex, pet.size, pet.description, pet.last_update, pet.status])
 
       pet.options.each do |option|
@@ -134,8 +163,8 @@ class PetfinderScheduler
     rescue StandardError => e
       puts e
       puts e.backtrace
-    ensure
-      conn.close unless conn.nil?
+    # ensure
+      # conn.close unless conn.nil?
     end
   end
 
@@ -161,31 +190,53 @@ class PetfinderScheduler
 
   def fill_db()
     @shelter_ids.each do |id|
+      puts id
       add_shelter(@petfinder.shelter(id))
 
-      pets = @petfinder.shelter_pets(id, {count: 1000})
-      add_pet(pets.first)
-      pets.each do |pet|
-        add_pet(pet)
+      begin
+        conn = get_connection()
+        conn.prepare('addPet', "SELECT AddPetStaging($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12);")
+        conn.prepare('addPetContact', "SELECT AddPetContactStaging($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)")
+        conn.prepare('addPetOption', "SELECT AddPetOptionStaging($1, $2);")
+        conn.prepare('addPetBreed', "SELECT AddPetBreedStaging($1, $2);")
+        conn.prepare('addPetPhoto', "SELECT AddPetPhotoStaging($1, $2, $3, $4);")
+        conn.prepare('truncateStaging', "SELECT TruncateStagingTables();")
+        conn.prepare('processStaging', "SELECT ProcessStagingTables();")
+        conn.exec_prepared('truncateStaging')
+
+        pets = @petfinder.shelter_pets(id, {count:1000})
+        pets.each do |pet|
+          puts pet.id
+          add_pet(conn, pet)
+        end
+
+        conn.exec_prepared('processStaging')
+      rescue StandardError => e
+        puts e
+        puts e.backtrace
+      ensure
+        conn.close unless conn.nil?
       end
     end
   end
 end
 
-database_url = ENV['DATABASE_URL']
-create_db = PetFinderCreateDatabase.new(database_url)
-create_db.create_db
-patfinder_server = PetfinderServer.new
+# database_url = ENV['DATABASE_URL']
+# create_db = PetFinderCreateDatabase.new(database_url)
+# create_db.create_db
+petfinder_server = PetfinderServer.new
 scheduler = Rufus::Scheduler.new
 
-scheduler.every '1h' do
-  database_url = ENV['DATABASE_URL']
-  petfinder_scheduler = PetfinderScheduler.new(database_url)
-  petfinder_scheduler.fill_db()
-end
+# scheduler.every '1h' do
+#   database_url = ENV['DATABASE_URL']
+#   petfinder_scheduler = PetfinderScheduler.new(database_url)
+#   petfinder_scheduler.fill_db()
+# end
 
-scheduler.in '10s' do
-  database_url = ENV['DATABASE_URL']
-  petfinder_scheduler = PetfinderScheduler.new(database_url)
-  petfinder_scheduler.fill_db()
-end
+# scheduler.in '1s' do
+#   puts 'Starting import'
+#   database_url = ENV['DATABASE_URL']
+#   petfinder_scheduler = PetfinderScheduler.new(database_url)
+#   petfinder_scheduler.fill_db()
+#   puts 'Import complete'
+# end

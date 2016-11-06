@@ -115,6 +115,7 @@ class PetFinderCreateDatabase
 		CREATE TABLE SizeTypes (
 			SizeTypePK SERIAL Primary Key
 			,SizeTypeName varchar(2) UNIQUE NOT NULL
+			,SizeTypeDisplayName varchar(12)
 		);
 
 		CREATE TABLE Shelters (
@@ -446,7 +447,7 @@ class PetFinderCreateDatabase
 		END
 		$$ LANGUAGE plpgsql;
 
-		CREATE OR REPLACE FUNCTION ProcessStaging()
+		CREATE OR REPLACE FUNCTION ProcessStagingTables()
 		RETURNS text as $$
 		BEGIN
 			CREATE TEMPORARY TABLE PetsToDelete(
@@ -505,7 +506,7 @@ class PetFinderCreateDatabase
 			  ,ShelterPetID = ps2.ShelterPetID
 			  ,Name = ps2.Name
 			  ,AnimalTypePK = ps2.AnimalTypePK
-			  ,Gender = ps2.Gender
+			  ,GenderPK = ps2.GenderPK
 			  ,SizeTypePK = ps2.SizeTypePK
 			  ,Description = ps2.Description
 			  ,LastUpdate = ps2.LastUpdate
@@ -541,7 +542,7 @@ class PetFinderCreateDatabase
 			  ,ShelterPetID
 			  ,Name
 			  ,AnimalTypePK
-			  ,Gender
+			  ,GenderPK
 			  ,SizeTypePK
 			  ,Description
 			  ,LastUpdate
@@ -566,7 +567,7 @@ class PetFinderCreateDatabase
 			JOIN AgeTypes agt ON agt.AgeTypeName = ps.AgeTypeName
 			JOIN GenderTypes gt ON gt.PetFinderGender = ps.Gender
 			WHERE NOT EXISTS (
-			  SELECT 1
+			  SELECT *
 			  FROM Pets p
 			  WHERE ps.PetFinderID = p.PetFinderID
 			  );
@@ -746,12 +747,12 @@ class PetFinderCreateDatabase
 			# puts f.value
 		end
 
-		sizeTypes = conn[:sizetypes]
-
-		REXML::XPath.each(doc, '//xs:simpleType[@name="petSizeType"]//xs:enumeration/@value') do |f|
-		  sizeTypes.insert(:sizetypename => f.value)
-			# puts f.value
-		end
+		conn.run "
+			INSERT INTO SizeTypes (SizeTypeName, SizeTypeDisplayName) VALUES ('S', 'Small');
+			INSERT INTO SizeTypes (SizeTypeName, SizeTypeDisplayName) VALUES ('M', 'Medium');
+			INSERT INTO SizeTypes (SizeTypeName, SizeTypeDisplayName) VALUES ('L', 'Large');
+			INSERT INTO SizeTypes (SizeTypeName, SizeTypeDisplayName) VALUES ('XL', 'Extra Large');
+		";
 
 		conn.run "
 			INSERT INTO GenderTypes (PetFinderGender, GenderDisplayName)

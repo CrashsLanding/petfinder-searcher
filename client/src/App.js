@@ -44,7 +44,7 @@ class App extends Component {
   loadAnimals() {
     return axios.get(this.endpoint)
       .then(response => {
-        return response.data['pets'];
+        return _.sortBy(response.data['pets'], pet => pet.name);
       });
   }
 

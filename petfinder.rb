@@ -56,14 +56,13 @@ class PetfinderScheduler
         conn.exec_prepared('addPetBreed', [pet.id, breed])
       end
 
-      pet.photos.each do |pic|
-        conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 'x', pic.large])
-        conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 'pn', pic.medium])
-        conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 'fpm', pic.small])
-        conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 'pnt', pic.thumbnail])
-        conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 't', pic.tiny])
-      end
-
+      pic = pet.photos.first
+      conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 'x', pic.large])
+      conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 'pn', pic.medium])
+      conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 'fpm', pic.small])
+      conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 'pnt', pic.thumbnail])
+      conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 't', pic.tiny])
+        
       contact = parse_contact_info(pet.contact)
       if contact.empty?
         puts 'Error processing contacts.'
@@ -97,33 +96,33 @@ class PetfinderScheduler
   end
 
   def fill_db()
-    @shelter_ids.each do |id|
-      puts id
-      add_shelter(@petfinder.shelter(id))
+    # Update shelter ids
+    @shelter_ids.each { |id| add_shelter(@petfinder.shelter(id))}
+    pets = @shelter_ids.flat_map { |id| @petfinder.shelter_pets(id, {count:1000})}
+    begin
+      conn = get_connection()
+      conn.prepare('addPet', "SELECT AddPetStaging($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12);")
+      conn.prepare('addPetContact', "SELECT AddPetContactStaging($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)")
+      conn.prepare('addPetOption', "SELECT AddPetOptionStaging($1, $2);")
+      conn.prepare('addPetBreed', "SELECT AddPetBreedStaging($1, $2);")
+      conn.prepare('addPetPhoto', "SELECT AddPetPhotoStaging($1, $2, $3, $4);")
+      conn.prepare('truncateStaging', "SELECT TruncateStagingTables();")
+      conn.prepare('processStaging', "SELECT ProcessStagingTables();")
+      conn.exec_prepared('truncateStaging')
 
-      begin
-        conn = get_connection()
-        conn.prepare('addPet', "SELECT AddPetStaging($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12);")
-        conn.prepare('addPetContact', "SELECT AddPetContactStaging($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)")
-        conn.prepare('addPetOption', "SELECT AddPetOptionStaging($1, $2);")
-        conn.prepare('addPetBreed', "SELECT AddPetBreedStaging($1, $2);")
-        conn.prepare('addPetPhoto', "SELECT AddPetPhotoStaging($1, $2, $3, $4);")
-        conn.prepare('truncateStaging', "SELECT TruncateStagingTables();")
-        conn.prepare('processStaging', "SELECT ProcessStagingTables();")
-        conn.exec_prepared('truncateStaging')
-
-        pets = @petfinder.shelter_pets(id, {count:1000})
-        pets.each do |pet|
-          puts pet.id
-          add_pet(conn, pet)
-        end
-        conn.exec_prepared('processStaging')
-      rescue StandardError => e
-        puts e
-        puts e.backtrace
-      ensure
-        conn.close unless conn.nil?
+      puts pets.length
+      pets.each do |pet|
+        puts pet.id
+        puts pet.name
+        add_pet(conn, pet)
       end
+
+      conn.exec_prepared('processStaging')
+    rescue StandardError => e
+      puts e
+      puts e.backtrace
+    ensure
+      conn.close unless conn.nil?
     end
   end
 end
@@ -134,6 +133,8 @@ unless bypass_db_setup
   create_db = PetFinderCreateDatabase.new(database_url)
   create_db.create_db
 end
+
+PetfinderScheduler.new(database_url).fill_db()
 
 scheduler = Rufus::Scheduler.new
 

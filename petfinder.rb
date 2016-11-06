@@ -16,7 +16,7 @@ configure do
   enable :cross_origin
 end
 
-set :public_folder, 'build'
+set :public_folder, 'client/build'
 
 api_key = ENV['PETFINDER_API_KEY']
 api_secret = ENV['PETFINDER_API_SECRET']

@@ -156,6 +156,8 @@ unless bypass_db_setup
 end
 
 class PetfinderServer < Sinatra::Base
+  set :public_folder, Proc.new { File.join(root, "client", "build") }
+
   get '/' do
     redirect '/index.html'
   end

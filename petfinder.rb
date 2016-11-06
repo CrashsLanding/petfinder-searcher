@@ -14,13 +14,17 @@ if settings.development?
   Dotenv.load
 end
 
+configure do
+  enable :cross_origin
+end
+
+set :protection, :except => :frame_options
+
 api_key = ENV['PETFINDER_API_KEY']
 api_secret = ENV['PETFINDER_API_SECRET']
 shelter_ids = ENV['PETFINDER_SHELTER_IDS'].split(',')
 
-
 class PetfinderScheduler
-
   attr_reader :database_url
 
   def initialize(database_url)
@@ -142,7 +146,6 @@ unless bypass_db_setup
   create_db.create_db
 end
 
-
 scheduler = Rufus::Scheduler.new
 
 scheduler.every '1h' do
@@ -161,13 +164,6 @@ end
 
 
 class PetfinderServer < Sinatra::Base
-
-  set :protection, :except => :frame_options
-
-  configure do
-    enable :cross_origin
-  end
-
   set :public_folder, Proc.new { File.join(root, "client", "build") }
 
   get '/' do

@@ -1,6 +1,31 @@
-Petfinder Server
+Petfinder Searcher
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/CrashsLanding/petfinder-server/tree/master)
+
+You have found a sweet stand-alone petfinder search app. All you need to get it up and running is a Heroku account and your petfinder API credentials.
+
+# React Front-End
+
+### Setup
+
+The code for the client is found in `/client`. The client is a React app that is compiled and served up by the Sinatra back-end. You can adapt the client to your needs and build the client using `npm run build`, then commit the updated assets to git and push away.
+
+```
+cd client
+npm install
+CUSTOMIZE THE CLIENT
+npm run build
+git add .
+git commit -m "made some sweet changes"
+git push
+git push heroku
+```
+
+### Local Development
+
+One can run the React app locally to make it a lot easier to make changes, the code can be reloaded automatically rather than building after every change. cd into the client directory, change the `config.js` file to point at your local Sinatra app (uncomment the line in there pointing to localhost and comment out the relative endpoint) and run the React server with `npm start`, this will launch a server at `http://localhost:3000`. Run the Sinatra app separately using `bundle exec rerun ruby petfinder.rb` from the root of the project.
+
+# Sinatra Back-End
 
 ### Setup
 

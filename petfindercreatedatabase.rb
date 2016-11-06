@@ -95,6 +95,8 @@ class PetFinderCreateDatabase
 		CREATE TABLE BreedTypes (
 			BreedTypePK SERIAL PRIMARY KEY
 			,BreedName varchar(255) UNIQUE NOT NULL
+			,BreedColor varchar(50)
+			,BreedDisplayName varchar(255)
 		);
 
 		CREATE TABLE BreedTypesStaging (
@@ -845,12 +847,89 @@ class PetFinderCreateDatabase
 		end
 
 		conn.run "
+			DROP TABLE IF EXISTS KnownBreedColors;
+			CREATE TEMPORARY TABLE KnownBreedColors (
+				BreedName varchar(255)
+				, BreedColor varchar(50)
+				, BreedDisplayName varchar(255)
+			);
+			/*
+				This is very far from a complete list of Colors.
+
+				Feel free to add more.
+				Unfortunately PetFinder does not give exact colors for everything and these are just guesses
+			*/
+
+
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Black Labrador Retriever' , 'Black' , 'Labrador Retriever' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Black Russian Terrier' , 'Black' , 'Russian Terrier' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Long Hair-black' , 'Black' , 'Domestic Long Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Medium Hair-black' , 'Black' , 'Domestic Medium Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Short Hair-black' , 'Black' , 'Domestic Short Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Tabby - black' , 'Black' , 'Tabby' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Black and Tan Coonhound' , 'Black and Tan' , 'Coonhound' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Dalmatian' , 'Black and White' , 'Dalmation' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Long Hair-black and white' , 'Black And White' , 'Domestic Long Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Medium Hair-black and white' , 'Black And White' , 'Domestic Medium Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Short Hair-black and white' , 'Black And White' , 'Domestic Short Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Chocolate Labrador Retriever' , 'Brown' , 'Labrador Retriever' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Long Hair - brown' , 'Brown' , 'Domestic Long Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Medium Hair - brown' , 'Brown' , 'Domestic Medium Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Short Hair - brown' , 'Brown' , 'Domestic Short Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Tabby - Brown' , 'Brown' , 'Tabby' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Long Hair - buff' , 'Buff' , 'Domestic Long Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Medium Hair - buff' , 'Buff' , 'Domestic Medium Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Short Hair - buff' , 'Buff' , 'Domestic Short Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Golden Retriever' , 'Buff' , 'Golden Retriever' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Tabby - buff' , 'Buff' , 'Tabby' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Long Hair - buff and white' , 'Buff and White' , 'Domestic Long Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Medium Hair - buff and white' , 'Buff and White' , 'Domestic Medium Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Short Hair - buff and white' , 'Buff and White' , 'Domestic Short Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Long Hair-gray' , 'Gray' , 'Domestic Long Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Medium Hair-gray' , 'Gray' , 'Domestic Medium Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Short Hair-gray' , 'Gray' , 'Domestic Short Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Long Hair - gray and white' , 'Gray and White' , 'Domestic Long Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Medium Hair - gray and white' , 'Gray and White' , 'Domestic Medium Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Short Hair - gray and white' , 'Gray and White' , 'Domestic Short Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Tabby - Grey' , 'Grey' , 'Tabby' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Short Hair-mitted' , 'Mitted' , 'Domestic Short Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Long Hair - orange' , 'Orange' , 'Domestic Long Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Medium Hair-orange' , 'Orange' , 'Domestic Medium Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Short Hair-orange' , 'Orange' , 'Domestic Short Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Tabby - Orange' , 'Orange' , 'Tabby' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Long Hair - orange and white' , 'Orange and White' , 'Domestic Long Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Medium Hair - orange and white' , 'Orange and White' , 'Domestic Medium Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Short Hair - orange and white' , 'Orange and White' , 'Domestic Short Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Black Mouth Cur' , 'Other' , 'Black Mouth Cur' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Long Hair' , 'Other' , 'Domestic Long Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Medium Hair' , 'Other' , 'Domestic Medium Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Short Hair' , 'Other' , 'Domestic Short Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Tabby' , 'Other' , 'Tabby' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Long Hair-white' , 'White' , 'Domestic Long Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Medium Hair-white' , 'White' , 'Domestic Medium Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Domestic Short Hair-white' , 'White' , 'Domestic Short Hair' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Florida White' , 'White' , 'Florida' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'Tabby - white' , 'White' , 'Tabby' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'West Highland White Terrier Westie' , 'White' , 'West Highland White Terrier Westie' );
+			INSERT INTO KnownBreedColors (BreedName, BreedColor, BreedDisplayName) VALUES ( 'White German Shepherd' , 'White' , 'German Shepherd' );
+
 			INSERT INTO BreedTypes (
 				BreedName
+				,BreedColor
+				,BreedDisplayName
 			)
-			SELECT BreedName
-			FROM BreedTypesStaging
-			GROUP BY BreedName;
+			SELECT
+				bts2.BreedName
+				, COALESCE(kbc.BreedColor,'Other') as BreedColor
+				, COALESCE(kbc.BreedDisplayName,bts2.BreedName) as BreedDisplayName
+			FROM (
+				SELECT bts.BreedName
+				FROM BreedTypesStaging bts
+				GROUP BY bts.BreedName
+			) bts2
+			LEFT JOIN KnownBreedColors kbc ON bts2.BreedName = kbc.BreedName;
+
+
 
 			DROP TABLE BreedTypesStaging;
 		"

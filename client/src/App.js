@@ -86,20 +86,16 @@ class App extends Component {
       <div className="App">
         <div className="container-fluid app-container">
           <div className="row">
-            <div className="Side-bar col-xs-4 col-md-3">
-              <FacetContainer onFacetChange={this.onFacetChange.bind(this)}
-                              onAndFacetChange={this.onAndFacetChange.bind(this)}
-                              andFacets={this.state.andFacets}
-                              andAbleFacets={this.state.andAbleFacets}
-                              facets={this.state.facets}>
-              </FacetContainer>
-            </div>
-            <div className="App-content col-xs-8 col-md-9">
-              <AnimalContainer selectedFacets={this.state.selectedFacets}
-                               andFacets={this.state.andFacets}
-                               animals={this.state.animals}>
-              </AnimalContainer>
-            </div>
+            <FacetContainer onFacetChange={this.onFacetChange.bind(this)}
+                            onAndFacetChange={this.onAndFacetChange.bind(this)}
+                            andFacets={this.state.andFacets}
+                            andAbleFacets={this.state.andAbleFacets}
+                            facets={this.state.facets}>
+            </FacetContainer>
+            <AnimalContainer selectedFacets={this.state.selectedFacets}
+                             andFacets={this.state.andFacets}
+                             animals={this.state.animals}>
+            </AnimalContainer>
           </div>
         </div>
       </div>

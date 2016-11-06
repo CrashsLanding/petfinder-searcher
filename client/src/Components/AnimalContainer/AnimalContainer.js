@@ -39,7 +39,7 @@ class AnimalContainer extends React.Component {
   }
 
   render() {
-    return <div className="AnimalContainer">
+    return <div className="AnimalContainer col-xs-12 col-sm-9">
       {_.map(this.getFilteredAnimals(), (animal) => {
         return <Animal key={animal.id}
                        url={animal.petfinderUrl}

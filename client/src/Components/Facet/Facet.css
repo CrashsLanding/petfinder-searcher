@@ -5,6 +5,9 @@
 .andor {
   float: right;
   cursor: pointer;
+  text-decoration: underline;
+  font-size: .8em;
+  text-align: bottom;
 }
 
 .FacetName {
@@ -13,6 +16,7 @@
   color: #fff;
   padding: 0.3em;
   padding-left:20px;
+  line-height: 1.5em;
 }
 
 .FacetEntry {
@@ -38,4 +42,31 @@
   display: block;
   width: 100%;
   padding-left:15px;
+}
+.Facet > label {
+  display: block;
+  margin-bottom: 0;
+  cursor: pointer;
+}
+
+.Facet > input {
+  display: none; /* hide the checkbox */
+}
+
+@media (max-width: 768px) {
+  .FacetEntry {
+    display: none;
+  }
+  .Facet > input:checked ~ .FacetEntry {
+    display: block;
+  }
+}
+
+@media (min-width: 769px) {
+  .FacetEntry {
+    display: block;
+  }
+  .Facet > input:checked ~ .FacetEntry {
+    display: none;
+  }
 }

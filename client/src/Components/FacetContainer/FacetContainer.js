@@ -44,7 +44,7 @@ class FacetContainer extends React.Component {
   }
 
   render() {
-    return <div className="FacetContainer noselect">
+    return <div className="FacetContainer col-xs-12 col-sm-3">
       {_.map(_.keys(this.props.facets), (facetKey, index) => {
           let toggleFunction = _.partial(this.toggleFacetEntry, facetKey);
           let andFunction = _.partial(this.toggleAndFacet, facetKey);

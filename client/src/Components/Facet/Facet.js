@@ -32,7 +32,7 @@ class Facet extends React.Component {
           return 4;
         };
       };
-      
+
     case "age":
       return function(age){
         switch (age) {
@@ -46,7 +46,7 @@ class Facet extends React.Component {
           return 4;
         }
       };
-      
+
     default:
       return _.identity;
       break;
@@ -58,7 +58,7 @@ class Facet extends React.Component {
     let sortBy = this.getSortByFunction(name);
     return _.sortBy(keys, sortBy);
   }
-  
+
   render() {
     let andFunction = _.partial(this.props.andFunction, this.props.name);
     let andOrCandidate = _.includes(this.props.andAbleFacets, this.props.name);
@@ -74,8 +74,16 @@ class Facet extends React.Component {
 
     let sortedKeys = this.getSortedKeys(this.props.name, this.props.values);
 
+    let toggleName = "facet-toggle-" + this.props.name;
+
     return <div className="Facet noselect">
-      <div className="FacetName">{this.props.name} {andDom}</div>
+      <label htmlFor={toggleName}>
+        <div className="FacetName">
+          {this.props.name}
+          {andDom}
+        </div>
+      </label>
+      <input type="checkbox" id={toggleName}/>
       {sortedKeys.map((value, key) => {
         let toggleFunction = _.partial(this.props.toggleFunction, value);
         return <FacetEntry key={key}

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import FacetContainer from './Components/FacetContainer/FacetContainer';
 import AnimalContainer from './Components/AnimalContainer/AnimalContainer';
 import axios from 'axios';
-import config from './config'
+import config from './config';
 import './App.css';
 import _ from 'lodash';
 
@@ -38,7 +38,7 @@ class App extends Component {
         animals: animals
       });
       this.loadFacets();
-    })
+    });
   }
 
   loadAnimals() {

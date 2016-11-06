@@ -1,5 +1,4 @@
 require 'json'
-require 'petfinder'
 require 'rufus-scheduler'
 require 'sinatra'
 require 'sequel'
@@ -83,8 +82,6 @@ def get_all_pets()
   pets = {}
 
   results.each do |res|
-    # puts res['name']
-
     pets[res['petpk']] = {
       :petPk => res['petpk'],
       :id => res['petfinderid'],
@@ -140,26 +137,22 @@ def get_all_pets()
 end
 
 database_url = ENV['DATABASE_URL']
-bypass_db_setup = ENV['PETFINDER_BYPASS_DB_SETUP']
-unless bypass_db_setup
-  create_db = PetFinderCreateDatabase.new(database_url)
-  create_db.create_db
-end
+api_key = ENV['PETFINDER_API_KEY']
+api_secret = ENV['PETFINDER_API_SECRET']
+shelter_ids = ENV['PETFINDER_SHELTER_IDS']
 
-PetfinderScheduler.new(database_url, settings).fill_db()
+PetfinderScheduler.new(database_url, api_key, api_secret, shelter_ids).fill_db()
 
 scheduler = Rufus::Scheduler.new
 
 scheduler.every '1h' do
-  database_url = ENV['DATABASE_URL']
-  petfinder_scheduler = PetfinderScheduler.new(database_url, settings)
+  petfinder_scheduler = PetfinderScheduler.new(database_url, api_key, api_secret, shelter_ids)
   petfinder_scheduler.fill_db()
 end
 
 scheduler.in '1s' do
   puts 'Starting import'
-  database_url = ENV['DATABASE_URL']
-  petfinder_scheduler = PetfinderScheduler.new(database_url, settings)
+  petfinder_scheduler = PetfinderScheduler.new(database_url, api_key, api_secret, shelter_ids)
   petfinder_scheduler.fill_db()
   puts 'Import complete'
 end

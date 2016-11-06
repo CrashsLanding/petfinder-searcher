@@ -8,4 +8,5 @@ source 'https://rubygems.org' do
   gem 'rufus-scheduler'
   gem 'sequel'
   gem 'pg'
+  gem 'rake'
 end

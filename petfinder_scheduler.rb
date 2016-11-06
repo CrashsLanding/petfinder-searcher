@@ -1,19 +1,14 @@
 require 'pg'
 require 'uri'
+require 'petfinder'
 
 class PetfinderScheduler
   attr_reader :database_url
 
-  def initialize(database_url, settings)
-
-    if settings.development?
-      require 'dotenv'
-      Dotenv.load
-    end
-
-    @api_key = ENV['PETFINDER_API_KEY']
-    @api_secret = ENV['PETFINDER_API_SECRET']
-    @shelter_ids = ENV['PETFINDER_SHELTER_IDS'].split(',')
+  def initialize(database_url, api_key, api_secret, shelter_ids)
+    @api_key = api_key
+    @api_secret = api_secret
+    @shelter_ids = shelter_ids.split(',')
     @database_url = database_url
 
     @petfinder = Petfinder::Client.new(@api_key, @api_secret)

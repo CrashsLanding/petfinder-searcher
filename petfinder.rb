@@ -136,23 +136,14 @@ def get_all_pets()
   return pets
 end
 
-database_url = ENV['DATABASE_URL']
-api_key = ENV['PETFINDER_API_KEY']
-api_secret = ENV['PETFINDER_API_SECRET']
-shelter_ids = ENV['PETFINDER_SHELTER_IDS']
-
-PetfinderScheduler.new(database_url, api_key, api_secret, shelter_ids).fill_db()
-
 scheduler = Rufus::Scheduler.new
 
 scheduler.every '1h' do
-  petfinder_scheduler = PetfinderScheduler.new(database_url, api_key, api_secret, shelter_ids)
-  petfinder_scheduler.fill_db()
-end
+  database_url = ENV['DATABASE_URL']
+  api_key = ENV['PETFINDER_API_KEY']
+  api_secret = ENV['PETFINDER_API_SECRET']
+  shelter_ids = ENV['PETFINDER_SHELTER_IDS']
 
-scheduler.in '1s' do
-  puts 'Starting import'
   petfinder_scheduler = PetfinderScheduler.new(database_url, api_key, api_secret, shelter_ids)
   petfinder_scheduler.fill_db()
-  puts 'Import complete'
 end

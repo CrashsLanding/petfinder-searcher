@@ -97,6 +97,7 @@ class PetfinderScheduler
   end
 
   def fill_db()
+    puts "Importing pets to the database"
     # Update shelter ids
     @shelter_ids.each { |id| add_shelter(@petfinder.shelter(id))}
     pets = @shelter_ids.flat_map { |id| @petfinder.shelter_pets(id, {count:1000})}
@@ -111,10 +112,7 @@ class PetfinderScheduler
       conn.prepare('processStaging', "SELECT ProcessStagingTables();")
       conn.exec_prepared('truncateStaging')
 
-      # puts pets.length
       pets.each do |pet|
-        # puts pet.id
-        # puts pet.name
         add_pet(conn, pet)
       end
 

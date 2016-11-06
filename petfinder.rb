@@ -13,8 +13,6 @@ if settings.development?
   Dotenv.load
 end
 
-set :protection, :except => :frame_options
-
 class PetfinderScheduler
   attr_reader :database_url
 
@@ -157,6 +155,7 @@ end
 
 class PetfinderServer < Sinatra::Base
   set :public_folder, Proc.new { File.join(root, "client", "build") }
+  set :protection, :except => :frame_options
 
   get '/' do
     redirect '/index.html'
@@ -164,7 +163,6 @@ class PetfinderServer < Sinatra::Base
 
   get '/api/pets/all' do
     headers 'Access-Control-Allow-Origin' => '*'
-    headers 'X-Frame-Options' => ''
     pets = get_all_pets()
     pets_output = pets.map { |key, pet| {
       :id => pet[:id],

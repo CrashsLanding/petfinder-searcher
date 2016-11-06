@@ -2,7 +2,6 @@ require 'json'
 require 'petfinder'
 require 'rufus-scheduler'
 require 'sinatra'
-require 'sinatra/cross_origin'
 require 'sequel'
 
 settings = Sinatra::Application.settings
@@ -12,9 +11,7 @@ if settings.development?
   Dotenv.load
 end
 
-configure do
-  enable :cross_origin
-end
+set :protection, :except => :frame_options
 
 set :public_folder, Proc.new { File.join(root, "client", "build") }
 

@@ -164,6 +164,7 @@ class PetfinderServer < Sinatra::Base
 
   get '/api/pets/all' do
     headers 'Access-Control-Allow-Origin' => '*'
+    headers 'X-Frame-Options' => ''
     pets = get_all_pets()
     pets_output = pets.map { |key, pet| {
       :id => pet[:id],

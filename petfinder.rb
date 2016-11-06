@@ -14,15 +14,7 @@ if settings.development?
   Dotenv.load
 end
 
-configure do
-  enable :cross_origin
-end
-
 set :protection, :except => :frame_options
-
-api_key = ENV['PETFINDER_API_KEY']
-api_secret = ENV['PETFINDER_API_SECRET']
-shelter_ids = ENV['PETFINDER_SHELTER_IDS'].split(',')
 
 class PetfinderScheduler
   attr_reader :database_url
@@ -154,26 +146,24 @@ scheduler.every '1h' do
   petfinder_scheduler.fill_db()
 end
 
-scheduler.in '1s' do
-  puts 'Starting import'
-  database_url = ENV['DATABASE_URL']
-  petfinder_scheduler = PetfinderScheduler.new(database_url)
-  petfinder_scheduler.fill_db()
-  puts 'Import complete'
+unless bypass_db_setup
+  scheduler.in '1s' do
+    puts 'Starting import'
+    database_url = ENV['DATABASE_URL']
+    petfinder_scheduler = PetfinderScheduler.new(database_url)
+    petfinder_scheduler.fill_db()
+    puts 'Import complete'
+  end
 end
 
-
 class PetfinderServer < Sinatra::Base
-  set :public_folder, Proc.new { File.join(root, "client", "build") }
-
   get '/' do
     redirect '/index.html'
   end
 
   get '/api/pets/all' do
+    headers 'Access-Control-Allow-Origin' => '*'
     pets = get_all_pets()
-    puts "TEST"
-    puts pets
     pets_output = pets.map { |key, pet| {
       :id => pet[:id],
       :name => pet[:name],

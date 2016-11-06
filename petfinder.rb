@@ -173,6 +173,7 @@ class PetfinderServer < Sinatra::Base
       :breeds => pet[:breeds],
       :colors => pet[:colors],
       :petType => pet[:petType],
+      :options => pet[:options],
       :petfinderUrl => pet[:petfinderUrl],
       :photoUrl => pet[:photoUrl]}}
     {:pets => pets_output}.to_json
@@ -225,6 +226,7 @@ class PetfinderServer < Sinatra::Base
         :size => res['sizetypedisplayname'],
         :breeds => [],
         :colors => [],
+        :options => [],
         :petType => res['animaltypename'],
         :petfinderUrl => 'https://www.petfinder.com/petdetail/' + res['petfinderid'],
         :photoUrl => res['photourl']}
@@ -253,8 +255,22 @@ class PetfinderServer < Sinatra::Base
     results.each do |res|
       pets[res['petpk']][:colors].push(res['breedcolor'])
     end
+
+    results = conn.exec(
+      'SELECT petpk, ot.optiontypename
+        FROM petoptions po
+        INNER JOIN optiontypes ot
+        ON po.optiontypepk = ot.optiontypepk
+        GROUP BY petpk, ot.optiontypename;'
+      )
+
+    results.each do |res|
+      pets[res['petpk']][:options].push(res['optiontypename'])
+    end
+
     return pets
   end
+
   run!
 end
 

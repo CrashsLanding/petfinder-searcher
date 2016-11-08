@@ -5,11 +5,14 @@ require 'petfinder'
 class PetfinderScheduler
   attr_reader :database_url
 
-  def initialize(database_url, api_key, api_secret, shelter_ids)
+  def initialize(database_url, api_key, api_secret, shelter_ids, default_pic_id, default_pic_url)
     @api_key = api_key
     @api_secret = api_secret
     @shelter_ids = shelter_ids.split(',')
     @database_url = database_url
+
+    @default_pic_id = default_pic_id
+    @default_pic_url = default_pic_url
 
     @petfinder = Petfinder::Client.new(@api_key, @api_secret)
   end
@@ -58,7 +61,11 @@ class PetfinderScheduler
       end
 
       pic = pet.photos.first
-      conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 'x', pic.large])
+      if pic
+        conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 'x', pic.large])
+      else
+        conn.exec_prepared('addPetPhoto', [pet.id, @default_pic_id, 'x', @default_pic_url])
+      end/
       # conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 'pn', pic.medium])
       # conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 'fpm', pic.small])
       # conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 'pnt', pic.thumbnail])

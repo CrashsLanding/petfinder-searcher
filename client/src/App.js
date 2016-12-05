@@ -66,9 +66,10 @@ class App extends Component {
     let sex = this.createFacetEntriesForFacetName('sex');
     let options = this.createFacetEntriesForFacetName('options');
     let colors = this.createFacetEntriesForFacetName('colors');
+    let shelters = this.createFacetEntriesForFacetName('shelter');
 
     this.setState({
-      facets: { options, breeds, colors, age, size, sex }
+      facets: { shelters, options, breeds, colors, age, size, sex }
     });
   }
 

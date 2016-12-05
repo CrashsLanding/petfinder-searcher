@@ -33,6 +33,7 @@ get '/api/pets/all' do
     :colors => pet[:colors],
     :petType => pet[:petType],
     :options => pet[:options],
+    :shelter => pet[:shelter],
     :petfinderUrl => pet[:petfinderUrl],
     :photoUrl => pet[:photoUrl]}}
   {:pets => pets_output}.to_json
@@ -88,6 +89,7 @@ def get_all_pets()
       :name => res['name'],
       :sex => res['genderdisplayname'],
       :age => res['agetypename'],
+      :shelter => res['sheltername'],
       :size => res['sizetypedisplayname'],
       :breeds => [],
       :colors => [],

@@ -53,10 +53,29 @@ class Facet extends React.Component {
     }
   }
 
+  getFormattedKey(name, value) {
+    switch(name) {
+    case "options":
+      switch (value) {
+      case "hasShots":
+        return "has Shots";
+      case "noCats":
+        return "no Cats";
+      case "noDogs":
+        return "no Dogs";
+      case "specialNeeds":
+        return "special Needs";
+      default:
+        return value;
+      }
+    default:
+      return value;
+    };
+  };
+
   getSortedKeys(name, values) {
-    let keys = _.keys(this.props.values);
     let sortBy = this.getSortByFunction(name);
-    return _.sortBy(keys, sortBy);
+    return _.sortBy(values, sortBy);
   }
 
   render() {
@@ -72,7 +91,8 @@ class Facet extends React.Component {
       }
     }
 
-    let sortedKeys = this.getSortedKeys(this.props.name, this.props.values);
+    let formattedKeys = _.map(_.keys(this.props.values), _.partial(this.getFormattedKey, this.props.name));
+    let sortedKeys = this.getSortedKeys(this.props.name, formattedKeys);
 
     let toggleName = "facet-toggle-" + this.props.name;
 

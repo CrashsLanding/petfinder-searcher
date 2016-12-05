@@ -29,7 +29,7 @@ class FacetContainer extends React.Component {
     the_state.facets[facetName][facetEntryValue] = !selected;
 
     let selectedFacets = _.reduce(_.map(the_state.facets, (facetEntry, facetName) => {
-      let selectedFacet = {}
+      let selectedFacet = {};
 
       selectedFacet[facetName] = _.compact(_.map(facetEntry, (facetEntryValue, facetEntryKey) => {
         if (facetEntryValue) return facetEntryKey;
@@ -55,7 +55,7 @@ class FacetContainer extends React.Component {
                         andFacets={this.props.andFacets}
                         andAbleFacets={this.props.andAbleFacets}
                         toggleFunction={toggleFunction.bind(this)}>
-                 </Facet>
+          </Facet>;        
       })}
     </div>
   }

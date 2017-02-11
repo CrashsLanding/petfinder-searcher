@@ -30,7 +30,7 @@ class Facet extends React.Component {
           return 3;
         default:
           return 4;
-        };
+        }
       };
 
     case "age":
@@ -49,7 +49,6 @@ class Facet extends React.Component {
 
     default:
       return _.identity;
-      break;
     }
   }
 

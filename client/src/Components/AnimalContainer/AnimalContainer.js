@@ -39,8 +39,10 @@ class AnimalContainer extends React.Component {
   }
 
   render() {
+    let animals = this.getFilteredAnimals();
     return <div className="AnimalContainer col-xs-12 col-sm-9">
-      {_.map(this.getFilteredAnimals(), (animal) => {
+      <div className="count">Found <strong>{animals.length}</strong> animals matching your search</div>
+      {_.map(animals, (animal) => {
         return <Animal key={animal.id}
                        url={animal.petfinderUrl}
                        name={animal.name}

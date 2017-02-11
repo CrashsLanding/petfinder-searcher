@@ -53,7 +53,7 @@
 
 /* flip the pane when hovered */
 .flip-container:hover .flipper, .flip-container.hover .flipper {
-  transition-delay:.25s;
+  transition-delay: 0.5s;
   transform: rotateY(180deg);
 }
 
@@ -92,7 +92,7 @@
   padding: 0 25px;
   background-color: #353535;
   color: white;
-  
+
 }
 
 .moreInfo {

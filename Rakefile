@@ -31,3 +31,19 @@ namespace :db do
     PetfinderScheduler.new(database_url, api_key, api_secret, shelter_ids).fill_db()
   end
 end
+
+namespace :run do
+  task :server do
+    sh 'bundle exec rerun ruby petfinder.rb'
+  end
+
+  task :client do
+    client_path = File.join(File.dirname(__FILE__), '/client')
+    sh "cd #{client_path} && npm start"
+  end
+
+  task :build do
+    client_path = File.join(File.dirname(__FILE__), '/client')
+    sh "cd #{client_path} && npm build"
+  end
+end

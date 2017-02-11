@@ -55,7 +55,7 @@ class FacetContainer extends React.Component {
                         andFacets={this.props.andFacets}
                         andAbleFacets={this.props.andAbleFacets}
                         toggleFunction={toggleFunction.bind(this)}>
-          </Facet>;        
+          </Facet>;
       })}
     </div>
   }

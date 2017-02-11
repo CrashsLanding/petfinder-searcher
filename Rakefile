@@ -1,4 +1,3 @@
-
 require_relative 'petfinder_scheduler'
 require_relative 'petfindercreatedatabase'
 require 'dotenv/tasks'

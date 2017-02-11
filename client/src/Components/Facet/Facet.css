@@ -1,13 +1,17 @@
 .Facet {
   width: 100%;
+  position: relative;
 }
 
 .andor {
-  float: right;
+  right: 1em;
+  top: .5em;
   cursor: pointer;
   text-decoration: underline;
   font-size: .8em;
-  text-align: bottom;
+  color: #fff;
+  position: absolute;
+  text-transform: uppercase;
 }
 
 .FacetName {

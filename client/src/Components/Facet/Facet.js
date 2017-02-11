@@ -100,9 +100,9 @@ class Facet extends React.Component {
       <label htmlFor={toggleName}>
         <div className="FacetName">
           {this.props.name}
-          {andDom}
         </div>
       </label>
+      {andDom}
       <input type="checkbox" id={toggleName}/>
       {sortedKeys.map((value, key) => {
         let toggleFunction = _.partial(this.props.toggleFunction, value);

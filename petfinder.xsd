@@ -210,12 +210,12 @@
 
 <xs:simpleType name="petOptionType">
   <xs:restriction base="xs:string">
-    <xs:enumeration value="specialNeeds"/>
-    <xs:enumeration value="noDogs"/>
-    <xs:enumeration value="noCats"/>
-    <xs:enumeration value="noKids"/>
-    <xs:enumeration value="noClaws"/>
-    <xs:enumeration value="hasShots"/>
+    <xs:enumeration value="special needs"/>
+    <xs:enumeration value="no dogs"/>
+    <xs:enumeration value="no cats"/>
+    <xs:enumeration value="no kids"/>
+    <xs:enumeration value="no claws"/>
+    <xs:enumeration value="has shots"/>
     <xs:enumeration value="housebroken"/>
     <xs:enumeration value="altered"/>
   </xs:restriction>

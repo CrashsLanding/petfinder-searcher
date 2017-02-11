@@ -40,7 +40,7 @@ get '/api/pets/all' do
 end
 
 get '/api/pets/:shelter_id' do
-  options = {count:1000}
+  options = { count: 1000 }
   pets = petfinder.shelter_pets(params['shelter_id'], options)
   pets_output = pets.map { |pet| {
     :name => pet.name,

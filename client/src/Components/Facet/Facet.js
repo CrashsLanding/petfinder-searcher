@@ -54,23 +54,7 @@ class Facet extends React.Component {
   }
 
   getFormattedKey(name, value) {
-    switch(name) {
-    case "options":
-      switch (value) {
-      case "hasShots":
-        return "has Shots";
-      case "noCats":
-        return "no Cats";
-      case "noDogs":
-        return "no Dogs";
-      case "specialNeeds":
-        return "special Needs";
-      default:
-        return value;
-      }
-    default:
-      return value;
-    };
+    return value;
   };
 
   getSortedKeys(name, values) {
@@ -85,9 +69,9 @@ class Facet extends React.Component {
     if (andOrCandidate) {
       let isAnding = _.includes(this.props.andFacets, this.props.name);
       if (isAnding) {
-        andDom = <span className="andor" onClick={andFunction}>match some</span>;
-      } else {
         andDom = <span className="andor" onClick={andFunction}>match all</span>;
+      } else {
+        andDom = <span className="andor" onClick={andFunction}>match some</span>;
       }
     }
 

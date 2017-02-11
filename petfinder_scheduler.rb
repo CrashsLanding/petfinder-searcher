@@ -35,7 +35,6 @@ class PetfinderScheduler
 
   def add_pet(conn, pet)
     begin
-      # puts pet.name
       conn.exec_prepared('addPet', [pet.id,
                                     pet.name,
                                     pet.animal,
@@ -50,7 +49,8 @@ class PetfinderScheduler
                                     pet.status])
 
       pet.options.each do |option|
-        conn.exec_prepared('addPetOption', [pet.id, option])
+        option_name = parse_option_name(option)
+        conn.exec_prepared('addPetOption', [pet.id, option_name])
       end
 
       pet.breeds.each do |breed|
@@ -71,6 +71,20 @@ class PetfinderScheduler
     rescue StandardError => e
       puts e
       puts e.backtrace
+    end
+  end
+
+  def parse_option_name(option)
+    if option == 'hasShots'
+      'has shots'
+    elsif option == 'noCats'
+      'no cats'
+    elsif option == 'noDogs'
+      'no dogs'
+    elsif option == 'specialNeeds'
+      'special needs'
+    else
+      option
     end
   end
 

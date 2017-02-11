@@ -65,7 +65,7 @@ class PetfinderScheduler
         conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 'x', pic.large])
       else
         conn.exec_prepared('addPetPhoto', [pet.id, @default_pic_id, 'x', @default_pic_url])
-      end/
+      end
       # conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 'pn', pic.medium])
       # conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 'fpm', pic.small])
       # conn.exec_prepared('addPetPhoto', [pet.id, pic.id, 'pnt', pic.thumbnail])

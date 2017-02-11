@@ -1,6 +1,6 @@
 Petfinder Searcher
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/CrashsLanding/petfinder-server/tree/master)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/CrashsLanding/petfinder-searcher/tree/master)
 
 You have found a sweet stand-alone petfinder search app. All you need to get it up and running is a Heroku account and your petfinder API credentials.
 
@@ -18,7 +18,6 @@ npm run build
 git add .
 git commit -m "made some sweet changes"
 git push
-git push heroku
 ```
 
 ### Local Development
@@ -54,8 +53,14 @@ Install all gems with
 bundle install
 ```
 
-Run the app with
+Run the server with
 
 ``` shell
 bundle exec rerun ruby petfinder.rb
+```
+
+Run the client with
+
+``` shell
+cd client && npm start
 ```

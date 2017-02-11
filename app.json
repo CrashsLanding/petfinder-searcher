@@ -1,7 +1,7 @@
 {
   "name": "Petfinder Search",
   "description": "A pretty wrapper/caching layer for the Petfinder API",
-  "repository": "https://github.com/CrashsLanding/petfinder-server",
+  "repository": "https://github.com/CrashsLanding/petfinder-searcher",
   "logo": "https://www.petfinder.com/images/design/mastheads/no_logos_tophat-3-2010.png",
   "keywords": ["petfinder", "search"],
   "scripts": {
@@ -18,14 +18,6 @@
     },
     "PETFINDER_SHELTER_IDS": {
       "description": "A comma seperated list (no spaces) of shelter ids from Petfinder.",
-      "required": "true"
-    },
-    "PETFINDER_DEFAULT_PHOTO_URL": {
-      "description": "A url for the default image to be displayed in the case that the animal in question doesn't have a photo in Petfinder.",
-      "required": "true"
-    },
-    "PETFINDER_DEFAULT_PHOTO_ID": {
-      "default": "999999999",
       "required": "true"
     }
   }

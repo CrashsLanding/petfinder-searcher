@@ -145,10 +145,8 @@ scheduler.every '1h' do
   api_key = ENV['PETFINDER_API_KEY']
   api_secret = ENV['PETFINDER_API_SECRET']
   shelter_ids = ENV['PETFINDER_SHELTER_IDS']
-  default_photo_id = ENV['PETFINDER_DEFAULT_PHOTO_ID']
-  default_photo_url = ENV['PETFINDER_DEFAULT_PHOTO_URL']
 
-  petfinder_scheduler = PetfinderScheduler.new(database_url, api_key, api_secret, shelter_ids, default_photo_id, default_photo_url)
+  petfinder_scheduler = PetfinderScheduler.new(database_url, api_key, api_secret, shelter_ids)
 
   petfinder_scheduler.fill_db()
 end

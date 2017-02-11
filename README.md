@@ -2,7 +2,7 @@ Petfinder Searcher
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/CrashsLanding/petfinder-searcher/tree/master)
 
-You have found a sweet stand-alone petfinder search app. All you need to get it up and running is a Heroku account and your petfinder API credentials.
+You have found a sweet stand-alone petfinder search app. All you need to get it up and running is a Heroku account and your petfinder API credentials. It can be run as a standalone application or embedded in your existing website with an iframe.
 
 # React Front-End
 
@@ -36,7 +36,6 @@ It should look like:
 PETFINDER_API_KEY=SomeApiKeyHere
 PETFINDER_API_SECRET=SomeApiSecretHere
 PETFINDER_SHELTER_IDS=Comma,Seperated,List,Of,Ids
-PETFINDER_DEFAULT_PHOTO_URL=http://www.example.com/example.photo
 ```
 
 We are using Postgres with pg_config, so you need to have that installed, and accessible from the path before going further. Talk to Kevin is this isn't fixed / easier to deal with, and you're still reading it.

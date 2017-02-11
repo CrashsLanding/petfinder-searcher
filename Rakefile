@@ -44,6 +44,6 @@ namespace :run do
 
   task :build do
     client_path = File.join(File.dirname(__FILE__), '/client')
-    sh "cd #{client_path} && npm build"
+    sh "cd #{client_path} && npm run build"
   end
 end

@@ -4,6 +4,8 @@ Petfinder Searcher
 
 You have found a sweet stand-alone petfinder search app. All you need to get it up and running is a Heroku account and your petfinder API credentials. It can be run as a standalone application or embedded in your existing website with an iframe.
 
+This was originally developed at [Grand Rapids GiveCamp 2016](https://grgivecamp.org/) for [Crash's Landing](http://www.crashslanding.org/). Therefore, the code is hackathon quality, but good hackathon quality :)
+
 # React Front-End
 
 ### Setup
@@ -38,7 +40,7 @@ PETFINDER_API_SECRET=SomeApiSecretHere
 PETFINDER_SHELTER_IDS=Comma,Seperated,List,Of,Ids
 ```
 
-We are using Postgres with pg_config, so you need to have that installed, and accessible from the path before going further. Talk to Kevin is this isn't fixed / easier to deal with, and you're still reading it.
+We are using Postgres with pg_config, so you need to have that installed, and accessible from the path before going further.
 
 We are using Bundler, so before you go any further, make sure bundler is installed with
 

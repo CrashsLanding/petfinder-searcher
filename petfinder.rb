@@ -54,7 +54,7 @@ end
 
 def get_connection
   uri = URI.parse(ENV['DATABASE_URL'])
-  PGconn.connect(:host => uri.hostname,
+  PG.connect(:host => uri.hostname,
                  :port => uri.port,
                  :user => uri.user,
                  :password => uri.password,

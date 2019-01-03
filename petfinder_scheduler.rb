@@ -16,7 +16,7 @@ class PetfinderScheduler
 
   def get_connection
     uri = URI.parse(@database_url)
-    PGconn.connect(:host => uri.hostname, :port => uri.port, :user => uri.user, :password => uri.password, :dbname => uri.path[1..-1])
+    PG.connect(:host => uri.hostname, :port => uri.port, :user => uri.user, :password => uri.password, :dbname => uri.path[1..-1])
   end
 
   def add_shelter(shelter)

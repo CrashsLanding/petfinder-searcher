@@ -7,7 +7,7 @@ GEM
     et-orbi (1.1.6)
       tzinfo
     eventmachine (1.2.7)
-    excon (0.62.0)
+    excon (0.71.0)
     ffi (1.9.25)
     fugit (1.1.6)
       et-orbi (~> 1.1, >= 1.1.6)
